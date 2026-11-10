@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import './admin.css';
+import './adm.css';
 
 export const metadata: Metadata = { title: 'Privacy Saathi admin', robots: { index: false, follow: false } };
 

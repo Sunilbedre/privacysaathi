@@ -9,6 +9,7 @@ import { fillSms, sendSmtp, sendSms, sendWhatsApp } from '@/lib/ps/channels';
 import { SMS_TEMPLATES } from '@/lib/ps/enquiry';
 import { getSetting } from '@/lib/settings';
 
+const tab = (f: FormData) => { const t = String(f.get('tab') ?? ''); return ['alerts', 'email', 'whatsapp', 'sms', 'templates'].includes(t) ? t : 'alerts'; };
 const fails = new Map<string, number[]>();
 const tooMany = (ip: string) => (fails.get(ip) ?? []).filter((t) => Date.now() - t < 10 * 60_000).length >= 6;
 const noteFail = (ip: string) => fails.set(ip, [...(fails.get(ip) ?? []).filter((t) => Date.now() - t < 10 * 60_000), Date.now()]);
@@ -31,15 +32,15 @@ export async function logoutAction() {
 /** Save keys and switches from /qwedsa/settings. Empty field = keep what is saved. "Remove" = delete it. */
 export async function saveSettingsAction(formData: FormData) {
   if (!(await isCmsAuthed())) redirect('/qwedsa/login');
-  if (!settingsEnabled()) redirect('/qwedsa/settings?msg=disabled');
+  if (!settingsEnabled()) redirect(`/qwedsa/settings?tab=${tab(formData)}&msg=disabled`);
   const patch: Record<string, string | null> = {};
   for (const d of SETTING_DEFS) {
     if (formData.get(`remove_${d.key}`) === 'on') { patch[d.key] = null; continue; }
     const v = String(formData.get(d.key) ?? '').trim();
     if (v) patch[d.key] = v;
   }
-  try { updateSettings(patch); } catch { redirect('/qwedsa/settings?msg=error'); }
-  redirect('/qwedsa/settings?msg=saved');
+  try { updateSettings(patch); } catch { redirect(`/qwedsa/settings?tab=${tab(formData)}&msg=error`); }
+  redirect(`/qwedsa/settings?tab=${tab(formData)}&msg=saved`);
 }
 
 /** Try the saved keys. Reports only success or failure, never a key. */
@@ -60,7 +61,7 @@ export async function testSettingAction(formData: FormData) {
       msg = r === 'sent' ? 'sms-ok' : r === 'skipped' ? 'sms-none' : 'sms-fail';
     }
   } catch { msg = 'test-error'; }
-  redirect(`/qwedsa/settings?msg=${msg}`);
+  redirect(`/qwedsa/settings?tab=${tab(formData)}&msg=${msg}`);
 }
 
 
@@ -71,5 +72,7 @@ export async function updateEnquiryAction(formData: FormData) {
   const status = String(formData.get('status') ?? '');
   const note = String(formData.get('note') ?? '');
   await patchEnquiry(id, { status: (STATUSES as readonly string[]).includes(status) ? (status as EnquiryStatus) : undefined, note });
-  redirect(`/qwedsa/crm?e=${encodeURIComponent(id)}`);
+  const back = String(formData.get('back') ?? '');
+  const keep = /^[\w=&%.\-]*$/.test(back) ? back.split('&').filter((x) => x && !x.startsWith('e=')).join('&') : '';
+  redirect(`/qwedsa/crm?${keep ? keep + '&' : ''}e=${encodeURIComponent(id)}`);
 }

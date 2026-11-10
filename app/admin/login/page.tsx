@@ -1,35 +1,38 @@
-import Link from 'next/link';
+import { ShieldCheck, Inbox, BellRing, ScanSearch } from 'lucide-react';
 import { cmsEnabled } from '@/lib/cms/auth';
 import { loginAction } from '../actions';
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const sp = await searchParams;
   const enabled = cmsEnabled();
-
   return (
-    <>
-      <header className="cms-top">
-        <b>Bedre CMS</b>
-        <nav><Link href="/">← Website</Link></nav>
-      </header>
-      <div className="cms-card cms-login">
-        <h1 style={{ marginTop: 0 }}>Sign in</h1>
-        {!enabled ? (
-          <p className="cms-err">
-            Add <code>CMS_ADMIN_PASSWORD=your-secret</code> to <code>.env.local</code>, restart <code>npm run dev</code>, then sign in.
-          </p>
-        ) : (
-          <form action={loginAction}>
-            <div className="cms-field">
-              <label htmlFor="password">Admin password</label>
-              <input id="password" name="password" type="password" autoComplete="current-password" required />
-            </div>
-            {sp.error === 'auth' ? <p className="cms-err">Incorrect password.</p> : null}
-            {sp.error === 'wait' ? <p className="cms-err">Too many attempts. Please wait ten minutes and try again.</p> : null}
-            <button type="submit" className="cms-btn">Sign in</button>
-          </form>
-        )}
-      </div>
-    </>
+    <div className="adm-login">
+      <section className="adm-login-art">
+        <div className="adm-brand"><span><ShieldCheck size={18} aria-hidden /></span><b>Privacy Saathi</b></div>
+        <div>
+          <h2>Every lead, every alert, one place.</h2>
+          <p>Follow up on scan and solution enquiries, check your alert channels and see how the scanner is performing.</p>
+        </div>
+        <ul>
+          <li><Inbox size={18} aria-hidden /> Enquiry CRM with pipeline</li><li><BellRing size={18} aria-hidden /> WhatsApp, SMS and email alerts</li><li><ScanSearch size={18} aria-hidden /> Scan activity at a glance</li>
+        </ul>
+      </section>
+      <section className="adm-login-form">
+        <div className="adm-login-box">
+          <h1>Sign in</h1>
+          <p>Admin access for the Privacy Saathi team.</p>
+          {!enabled ? (
+            <div className="adm-msg bad">The admin password is not set on the server. Add <code>CMS_ADMIN_PASSWORD</code> and restart.</div>
+          ) : (
+            <form action={loginAction}>
+              <div className="adm-field"><label htmlFor="password">Admin password</label><input id="password" name="password" type="password" autoComplete="current-password" required autoFocus /></div>
+              {sp.error === 'auth' && <div className="adm-msg bad" role="alert" style={{ marginBottom: 14 }}>That password is not right.</div>}
+              {sp.error === 'wait' && <div className="adm-msg bad" role="alert" style={{ marginBottom: 14 }}>Too many attempts. Please wait ten minutes and try again.</div>}
+              <button type="submit" className="adm-btn" style={{ width: '100%' }}>Sign in</button>
+            </form>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

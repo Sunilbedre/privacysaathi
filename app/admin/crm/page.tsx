@@ -1,77 +1,138 @@
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { cmsEnabled, isCmsAuthed } from '@/lib/cms/auth';
+import { Download, Mail, MessageCircle, Phone, X, ExternalLink } from 'lucide-react';
 import { getEnquiry, listEnquiries, STATUSES, type Enquiry } from '@/lib/ps/crm';
+import { filterEnquiries } from '@/lib/ps/admin-stats';
 import { crore } from '@/lib/ps/dpdp-map';
-import { logoutAction, updateEnquiryAction } from '../actions';
+import Shell from '../Shell';
+import { updateEnquiryAction } from '../actions';
 
 export const dynamic = 'force-dynamic';
-const TYPE: Record<string, string> = { scan: 'Scan enquiry', solution: 'Solution enquiry' };
-const when = (iso: string) => new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
-const q = (o: Record<string, string | undefined>) => '?' + Object.entries(o).filter(([, v]) => v).map(([k, v]) => `${k}=${encodeURIComponent(v!)}`).join('&');
-const chip = (bg: string, fg: string): React.CSSProperties => ({ background: bg, color: fg, borderRadius: 999, padding: '2px 10px', fontSize: '.75rem', fontWeight: 700, whiteSpace: 'nowrap' });
+type SP = { t?: string; s?: string; p?: string; q?: string; sort?: string; v?: string; page?: string; e?: string };
+const PER = 20;
+const when = (iso: string) => new Date(iso).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
+const short = (iso: string) => new Date(iso).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+const href = (sp: SP, over: Partial<SP>) => { const m = { ...sp, ...over } as Record<string, string | undefined>; const q = Object.entries(m).filter(([, v]) => v).map(([k, v]) => `${k}=${encodeURIComponent(v!)}`).join('&'); return `/qwedsa/crm${q ? '?' + q : ''}`; };
+const digits = (p: string) => { const d = p.replace(/\D/g, ''); return d.length === 10 ? '91' + d : d; };
+const scoreCls = (n: number | null) => (n == null ? '' : n < 40 ? 'lo' : n < 70 ? 'mid' : 'hi');
+const ALERT_LABEL: Record<string, string> = { whatsapp: 'WhatsApp', sms: 'SMS', ownerEmail: 'Email to you', visitorEmail: 'Email to visitor', webhook: 'Chat webhook' };
+const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((x) => x[0]?.toUpperCase() ?? '').join('') || '?';
 
-export default async function CrmPage({ searchParams }: { searchParams: Promise<{ t?: string; s?: string; e?: string }> }) {
-  if (!cmsEnabled() || !(await isCmsAuthed())) redirect('/qwedsa/login');
+function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
+  const back = href(sp, { e: undefined }).split('?')[1] ?? '';
+  const timeline = [{ at: e.createdAt, text: e.type === 'solution' ? 'Asked for help' : 'Scanned and gave details', note: false }, ...e.notes.map((n) => ({ at: n.at, text: n.text, note: true }))].sort((a, b) => b.at.localeCompare(a.at));
+  return (
+    <aside className="adm-card adm-detail" aria-label="Enquiry details">
+      <div className="adm-d-top">
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><span className="adm-av" aria-hidden>{initials(e.name)}</span><div><h2>{e.name}</h2><span className="adm-sub">{e.company || e.website || 'No business given'}</span></div></div>
+        <Link href={href(sp, { e: undefined })} className="adm-btn ghost sm" aria-label="Close details"><X size={16} aria-hidden /></Link>
+      </div>
+      <div className="adm-d-badges">
+        <span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution enquiry' : 'Scan enquiry'}</span>
+        <span className={`adm-badge ${e.priority}`}>{e.priority === 'hot' ? 'Hot' : 'Warm'}</span>
+        <span className={`adm-badge ${e.status}`}>{e.status}</span>
+      </div>
+      <div className="adm-actions">
+        <a href={`tel:${e.phone.replace(/[^\d+]/g, '')}`}><Phone size={18} aria-hidden />Call</a>
+        <a href={`https://wa.me/${digits(e.phone)}`} target="_blank" rel="noopener"><MessageCircle size={18} aria-hidden />WhatsApp</a>
+        <a href={`mailto:${e.email}`}><Mail size={18} aria-hidden />Email</a>
+      </div>
+      <dl className="adm-dl">
+        <dt>Phone</dt><dd>{e.phone}</dd>
+        <dt>Email</dt><dd>{e.email}</dd>
+        <dt>Website</dt><dd>{e.website || 'No website'}</dd>
+        {e.type === 'scan' ? (<><dt>Result</dt><dd>{e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'} {e.band}{e.exposureCr ? ` · up to ${crore(e.exposureCr)} fine exposure` : ''}{e.gaps ? ` · ${e.gaps} gaps` : ''}</dd></>)
+          : (<><dt>Wants help with</dt><dd>{e.topic || '-'}</dd></>)}
+        {e.message && <><dt>Message</dt><dd>{e.message}</dd></>}
+        {e.preferredTime && <><dt>Best time</dt><dd>{e.preferredTime}</dd></>}
+        <dt>Source</dt><dd>{e.source || '-'}{e.utm ? ` · ${e.utm}` : ''}</dd>
+        <dt>Received</dt><dd>{when(e.createdAt)}</dd>
+        <dt>Reference</dt><dd><code>{e.id}</code></dd>
+      </dl>
+      {e.scanId && <p style={{ marginBottom: 14 }}><Link href={`/ps/report/${e.scanId}`} target="_blank" className="adm-btn ghost sm"><ExternalLink size={14} aria-hidden /> Open their report</Link></p>}
+
+      <form action={updateEnquiryAction}>
+        <input type="hidden" name="id" value={e.id} /><input type="hidden" name="back" value={back} />
+        <div className="adm-h3" style={{ marginTop: 4 }}>Stage</div>
+        <div className="adm-stage">{STATUSES.map((s) => <button key={s} name="status" value={s} className={s === e.status ? 'on' : ''}>{s}</button>)}</div>
+        <div className="adm-field"><label htmlFor="note">Add a note</label><textarea id="note" name="note" rows={2} placeholder="Called, will revert on Monday…" /></div>
+        <button className="adm-btn sm" type="submit">Save note</button>
+      </form>
+
+      <div className="adm-h3">Activity</div>
+      <ul className="adm-time">{timeline.map((t) => <li key={t.at + t.text}><small>{short(t.at)}</small>{t.note ? t.text : <b>{t.text}</b>}</li>)}</ul>
+
+      <div className="adm-h3">Alerts sent to you</div>
+      <div className="adm-health">{Object.keys(ALERT_LABEL).map((k) => { const v = e.alerts?.[k]; const good = v === 'sent' || v === 'outbox'; return <div key={k}><span>{ALERT_LABEL[k]}</span><span className={`adm-badge ${v === 'failed' ? 'bad' : good ? 'ok' : 'off'}`}>{v === 'outbox' ? 'saved (test)' : v ?? 'not sent'}</span></div>; })}</div>
+    </aside>
+  );
+}
+
+export default async function CrmPage({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const all = await listEnquiries();
-  const rows = all.filter((e) => (!sp.t || e.type === sp.t) && (!sp.s || e.status === sp.s));
-  const open: Enquiry | null = sp.e ? await getEnquiry(sp.e) : null;
-  const n = (t?: string) => all.filter((e) => !t || e.type === t).length;
+  const rows = filterEnquiries(all, sp);
+  const page = Math.max(1, Number(sp.page) || 1), pages = Math.max(1, Math.ceil(rows.length / PER));
+  const shown = sp.v === 'board' ? rows : rows.slice((page - 1) * PER, page * PER);
+  const open = sp.e ? await getEnquiry(sp.e) : null;
+  const n = (f: (e: Enquiry) => boolean) => all.filter(f).length;
+  const exportHref = `/qwedsa/crm/export${href(sp, { e: undefined, page: undefined, v: undefined }).split('crm')[1] ?? ''}`;
 
   return (
-    <>
-      <header className="cms-top"><b>Privacy Saathi CRM</b><nav><Link href="/qwedsa">Admin home</Link><Link href="/qwedsa/settings">Settings</Link>
-        <form action={logoutAction} style={{ display: 'inline' }}><button type="submit" className="cms-btn secondary" style={{ height: 32, padding: '0 14px', fontSize: '.82rem' }}>Sign out</button></form></nav></header>
-      <div className="cms-card" style={{ maxWidth: 1100, margin: '24px auto' }}>
-        <h1 style={{ marginTop: 0 }}>Enquiries</h1>
-        <p style={{ color: '#5a6283' }}>Two kinds: <b>Scan enquiry</b> (someone checked a site and shared details to see the result) and <b>Solution enquiry</b> (someone asked Bedre to help with a specific gap).</p>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', margin: '14px 0' }}>
-          {[['', `All (${n()})`], ['scan', `Scan enquiries (${n('scan')})`], ['solution', `Solution enquiries (${n('solution')})`]].map(([k, l]) => <Link key={k} href={`/qwedsa/crm${q({ t: k, s: sp.s })}`} className={`cms-btn${(sp.t ?? '') === k ? '' : ' secondary'}`} style={{ height: 34, padding: '0 14px', fontSize: '.85rem' }}>{l}</Link>)}
-          <span style={{ width: 16 }} />
-          {['', ...STATUSES].map((k) => <Link key={k} href={`/qwedsa/crm${q({ t: sp.t, s: k })}`} className={`cms-btn${(sp.s ?? '') === k ? '' : ' secondary'}`} style={{ height: 34, padding: '0 12px', fontSize: '.82rem', textTransform: 'capitalize' }}>{k || 'Any stage'}</Link>)}
-        </div>
+    <Shell active="crm" title="Enquiries" sub="Scan enquiries (checked a site, shared details) and solution enquiries (asked Bedre to fix a gap)."
+      actions={<a href={exportHref} className="adm-btn ghost"><Download size={16} aria-hidden /> Export CSV</a>}>
 
-        {open && (
-          <div style={{ border: '2px solid #4F4FD9', borderRadius: 12, padding: 18, margin: '16px 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0 }}>{open.name} <span style={chip(open.type === 'solution' ? '#FFF0D6' : '#E6E6FB', open.type === 'solution' ? '#7A4B00' : '#3030A8')}>{TYPE[open.type]}</span> {open.priority === 'hot' && <span style={chip('#FDE3E3', '#A11')}>HOT</span>}</h2>
-              <Link href={`/qwedsa/crm${q({ t: sp.t, s: sp.s })}`}>Close</Link>
+      <div className="adm-bar">
+        <form action="/qwedsa/crm" method="get">
+          <input className="search" type="search" name="q" defaultValue={sp.q ?? ''} placeholder="Search name, phone, email, business…" aria-label="Search enquiries" />
+          {sp.t && <input type="hidden" name="t" value={sp.t} />}{sp.s && <input type="hidden" name="s" value={sp.s} />}{sp.v && <input type="hidden" name="v" value={sp.v} />}
+          <select name="p" defaultValue={sp.p ?? ''} aria-label="Priority"><option value="">Any priority</option><option value="hot">Hot</option><option value="warm">Warm</option></select>
+          <select name="sort" defaultValue={sp.sort ?? ''} aria-label="Sort"><option value="">Newest first</option><option value="old">Oldest first</option><option value="score">Lowest score first</option><option value="exposure">Highest fine first</option></select>
+          <button className="adm-btn ghost" type="submit">Apply</button>
+        </form>
+        <div className="adm-seg" role="group" aria-label="View"><Link href={href(sp, { v: undefined, page: undefined })} className={sp.v !== 'board' ? 'on' : ''}>List</Link><Link href={href(sp, { v: 'board', e: undefined })} className={sp.v === 'board' ? 'on' : ''}>Board</Link></div>
+      </div>
+
+      <div className="adm-chips" aria-label="Filter by type and stage">
+        {[['', 'All', all.length], ['scan', 'Scan', n((e) => e.type === 'scan')], ['solution', 'Solution', n((e) => e.type === 'solution')]].map(([k, l, c]) => <Link key={String(k)} href={href(sp, { t: String(k) || undefined, page: undefined })} className={(sp.t ?? '') === k ? 'on' : ''}>{l}<b>{c}</b></Link>)}
+        <span style={{ width: 10 }} />
+        {['', ...STATUSES].map((k) => <Link key={k} href={href(sp, { s: k || undefined, page: undefined })} className={(sp.s ?? '') === k ? 'on' : ''}>{k || 'Any stage'}{k && <b>{n((e) => e.status === k)}</b>}</Link>)}
+      </div>
+
+      {sp.v === 'board' ? (
+        <div className="adm-board">
+          {STATUSES.map((s) => { const col = shown.filter((e) => e.status === s); return (
+            <section key={s} className="adm-col"><h3>{s}<span>{col.length}</span></h3>
+              {col.map((e) => <Link key={e.id} href={href(sp, { e: e.id })} className="adm-cardlet"><b>{e.name}</b><small>{e.company || e.website || e.phone}</small><span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span>{e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}{e.score != null && <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span>}</span></Link>)}
+            </section>); })}
+        </div>
+      ) : null}
+
+      <div className={open ? 'adm-split' : undefined}>
+        {sp.v !== 'board' && (
+          <div style={{ display: 'grid', gap: 14, minWidth: 0 }}>
+            <div className="adm-tablewrap">
+              <table className="adm-table">
+                <thead><tr><th>Received</th><th>Name</th><th>Type</th><th>Result / wants</th><th>Stage</th></tr></thead>
+                <tbody>
+                  {shown.map((e) => (
+                    <tr key={e.id} className={e.id === sp.e ? 'sel' : undefined}>
+                      <td className="adm-cell"><Link className="row" href={href(sp, { e: e.id })}>{short(e.createdAt)}</Link></td>
+                      <td className="adm-cell"><b>{e.name}</b> {e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}<small>{e.company || e.website || e.phone}</small></td>
+                      <td><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span></td>
+                      <td className="adm-cell">{e.type === 'solution' ? e.topic || '-' : e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'}{e.type === 'scan' && e.exposureCr ? <small>up to {crore(e.exposureCr)}</small> : null}</td>
+                      <td><span className={`adm-badge ${e.status}`}>{e.status}</span></td>
+                    </tr>))}
+                </tbody>
+              </table>
+              {!shown.length && <div className="adm-empty"><b>{all.length ? 'Nothing matches those filters' : 'No enquiries yet'}</b>{all.length ? 'Try clearing the search or filters.' : 'They appear here as soon as someone scans a site or asks for help.'}</div>}
             </div>
-            <table style={{ margin: '12px 0', fontSize: '.92rem' }}><tbody>
-              {([['Phone', <a key="p" href={`tel:${open.phone.replace(/[^\d+]/g, '')}`}>{open.phone}</a>], ['Email', <a key="e" href={`mailto:${open.email}`}>{open.email}</a>], ['Business', open.company || open.website || '-'], ['Website', open.website || 'none'],
-                ['Result', `${open.score ?? '-'}/100 · ${open.band}${open.exposureCr ? ` · up to ${crore(open.exposureCr)}` : ''}`], ['Wants help with', open.topic || '-'], ['Message', open.message || '-'], ['Best time', open.preferredTime || '-'],
-                ['Source', `${open.source}${open.utm ? ` · ${open.utm}` : ''}`], ['Received', when(open.createdAt)], ['Alerts', Object.entries(open.alerts).map(([k, v]) => `${k}: ${v}`).join(' · ') || '-'],
-              ] as [string, React.ReactNode][]).map(([k, v]) => <tr key={k}><td style={{ padding: '4px 18px 4px 0', color: '#5a6283', verticalAlign: 'top' }}>{k}</td><td>{v}</td></tr>)}
-            </tbody></table>
-            {open.scanId && <p><Link href={`/report/${open.scanId}`} target="_blank">Open their report ↗</Link></p>}
-            <form action={updateEnquiryAction} style={{ display: 'grid', gap: 10, maxWidth: 520 }}>
-              <input type="hidden" name="id" value={open.id} />
-              <label>Stage <select name="status" defaultValue={open.status} style={{ marginLeft: 8 }}>{STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>
-              <label>Add a note<textarea name="note" rows={2} placeholder="Called, will revert Monday…" style={{ width: '100%' }} /></label>
-              <button className="cms-btn" type="submit" style={{ justifySelf: 'start' }}>Save</button>
-            </form>
-            {open.notes.length > 0 && <ul style={{ marginTop: 14 }}>{[...open.notes].reverse().map((x) => <li key={x.at}><small style={{ color: '#5a6283' }}>{when(x.at)}</small> {x.text}</li>)}</ul>}
+            {rows.length > PER && (
+              <div className="adm-pager"><span>Showing {(page - 1) * PER + 1} to {Math.min(page * PER, rows.length)} of {rows.length}</span>
+                <div>{page > 1 && <Link className="adm-btn ghost sm" href={href(sp, { page: String(page - 1) })}>Previous</Link>}{page < pages && <Link className="adm-btn ghost sm" href={href(sp, { page: String(page + 1) })}>Next</Link>}</div></div>)}
           </div>
         )}
-
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '.9rem' }}>
-            <thead><tr style={{ textAlign: 'left', borderBottom: '2px solid #d6dcef' }}>{['When', 'Type', 'Name', 'Phone', 'Business', 'Result / wants', 'Stage'].map((h) => <th key={h} style={{ padding: '8px 10px' }}>{h}</th>)}</tr></thead>
-            <tbody>{rows.map((e) => (
-              <tr key={e.id} style={{ borderBottom: '1px solid #e8ecf7', background: e.id === sp.e ? '#F1F1FE' : undefined }}>
-                <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}><Link href={`/qwedsa/crm${q({ t: sp.t, s: sp.s, e: e.id })}`}>{when(e.createdAt)}</Link></td>
-                <td style={{ padding: '8px 10px' }}><span style={chip(e.type === 'solution' ? '#FFF0D6' : '#E6E6FB', e.type === 'solution' ? '#7A4B00' : '#3030A8')}>{TYPE[e.type]}</span></td>
-                <td style={{ padding: '8px 10px' }}>{e.name} {e.priority === 'hot' && <span style={chip('#FDE3E3', '#A11')}>HOT</span>}</td>
-                <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>{e.phone}</td>
-                <td style={{ padding: '8px 10px' }}>{e.company || e.website || '-'}</td>
-                <td style={{ padding: '8px 10px' }}>{e.type === 'solution' ? e.topic : `${e.score ?? '-'}/100`}</td>
-                <td style={{ padding: '8px 10px', textTransform: 'capitalize' }}>{e.status}</td>
-              </tr>))}</tbody>
-          </table>
-          {!rows.length && <p style={{ color: '#5a6283', padding: 16 }}>No enquiries here yet.</p>}
-        </div>
+        {open && <Detail e={open} sp={sp} />}
       </div>
-    </>
+    </Shell>
   );
 }
