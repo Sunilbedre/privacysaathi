@@ -12,8 +12,8 @@ const gist = (e: Enquiry) => `score ${e.score ?? '-'}/100${e.exposureCr ? `, up 
 
 /** The exact message texts to register as templates (shown on the settings page). {{n}} are the variables we fill in. */
 export const WA_TEMPLATES = {
-  scan: { name: 'ps_scan_enquiry', category: 'Utility', body: 'New Privacy Saathi scan enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nResult: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'score 38/100, up to ₹250 crore', 'https://bedreweb.com/admin/crm?e=abc123'] },
-  solution: { name: 'ps_solution_enquiry', category: 'Utility', body: 'New Privacy Saathi SOLUTION enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nWants help with: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'Security safeguards', 'https://bedreweb.com/admin/crm?e=abc123'] },
+  scan: { name: 'ps_scan_enquiry', category: 'Utility', body: 'New Privacy Saathi scan enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nResult: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'score 38/100, up to ₹250 crore', 'https://privacysaathi.in/qwedsa/crm?e=abc123'] },
+  solution: { name: 'ps_solution_enquiry', category: 'Utility', body: 'New Privacy Saathi SOLUTION enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nWants help with: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'Security safeguards', 'https://privacysaathi.in/qwedsa/crm?e=abc123'] },
 } as const;
 /** Register these exactly in SMSAlert / DLT. {#var#} slots are filled in order. */
 export const SMS_TEMPLATES = {
