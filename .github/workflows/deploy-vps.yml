@@ -1,0 +1,36 @@
+# Redeploy privacysaathi.in on every push to main.
+name: Deploy VPS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -euo pipefail
+            APP=/var/www/privacysaathi
+            cd "$APP"
+            git fetch origin
+            git reset --hard origin/main
+            echo "Deploying $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
+            npm ci
+            npm run build
+            pm2 restart privacysaathi
+            pm2 save
+            curl -sf -o /dev/null -H 'Host: privacysaathi.in' http://127.0.0.1:3000/ && echo "App OK"
