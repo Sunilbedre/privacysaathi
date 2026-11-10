@@ -29,8 +29,12 @@ export const SETTING_DEFS: SettingDef[] = [
   { key: 'WA_TEMPLATE_SCAN', label: 'Template name: scan enquiry', help: 'Name of the approved template for “someone scanned a site”. See the template text below.', group: 'WhatsApp alerts', secret: false, placeholder: 'ps_scan_enquiry' },
   { key: 'WA_TEMPLATE_SOLUTION', label: 'Template name: solution enquiry', help: 'Name of the approved template for “someone wants a solution”.', group: 'WhatsApp alerts', secret: false, placeholder: 'ps_solution_enquiry' },
   { key: 'WA_TEMPLATE_LANG', label: 'Template language code', help: 'Default en.', group: 'WhatsApp alerts', secret: false, placeholder: 'en' },
+  { key: 'WA_CLIENT_SEND', label: 'Also message the visitor on WhatsApp', help: 'Type on to send each visitor a confirmation on WhatsApp. Leave empty to keep it off. Turn it on only after the two visitor templates (Message templates tab) are approved.', group: 'WhatsApp alerts', secret: false, placeholder: 'on' },
+  { key: 'WA_TEMPLATE_CLIENT_SCAN', label: 'Template name: visitor, after a scan', help: 'Approved template sent to the visitor after they see their result.', group: 'WhatsApp alerts', secret: false, placeholder: 'ps_client_scan' },
+  { key: 'WA_TEMPLATE_CLIENT_SOLUTION', label: 'Template name: visitor, after asking for help', help: 'Approved template sent to the visitor after they request help.', group: 'WhatsApp alerts', secret: false, placeholder: 'ps_client_solution' },
   { key: 'SMS_API_KEY', label: 'SMSAlert API key', help: 'SMSAlert dashboard → API key. Saved encrypted.', group: 'SMS alerts', secret: true },
   { key: 'SMS_SENDER_ID', label: 'SMSAlert sender ID', help: 'Your approved 6-letter DLT sender ID, for example BEDRWB.', group: 'SMS alerts', secret: false },
+  { key: 'SMS_CLIENT_SEND', label: 'Also text the visitor', help: 'Type on to send each visitor a confirmation SMS. Leave empty to keep it off. Turn it on only after the two visitor DLT templates (Message templates tab) are approved.', group: 'SMS alerts', secret: false, placeholder: 'on' },
   { key: 'SMS_OWNER_NUMBERS', label: 'Send SMS alerts to', help: 'Your mobile number(s) with country code, no plus sign, separated by commas. Example: 919876543210', group: 'SMS alerts', secret: false },
 ];
 const KEYS = new Set(SETTING_DEFS.map((d) => d.key));

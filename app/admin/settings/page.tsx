@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { BellRing, Mail, MessageCircle, Smartphone, FileText } from 'lucide-react';
 import { settingsEnabled, settingsStatus, type SettingStatus } from '@/lib/settings';
-import { WA_TEMPLATES, SMS_TEMPLATES } from '@/lib/ps/enquiry';
+import { WA_TEMPLATES, SMS_TEMPLATES, WA_CLIENT_TEMPLATES, SMS_CLIENT_TEMPLATES } from '@/lib/ps/enquiry';
 import Shell from '../Shell';
 import { saveSettingsAction, testSettingAction } from '../actions';
 
@@ -34,8 +34,8 @@ const TABS = [
 const GUIDE: Record<string, string[]> = {
   alerts: ['Enter the inbox (or inboxes, separated by commas) that should get every new enquiry.', 'Enter the address of this admin, for example https://privacysaathi.in, so alert links open the right enquiry.'],
   email: ['Log in to Mail Baby and copy the SMTP server, port, username and password.', 'Use a From address on a domain Mail Baby allows, for example Privacy Saathi <hello@privacysaathi.in>.', 'Save, then press “Send test email”.'],
-  whatsapp: ['In Meta for Developers open WhatsApp, then API Setup. Copy the Phone number ID and the WhatsApp Business Account ID.', 'Create a permanent token with a system user and paste it here. It is stored encrypted.', 'Create the two message templates (see the Message templates tab), wait for approval, then type their names below.', 'Enter your own number with country code and no plus sign, for example 919876543210.'],
-  sms: ['In SMSAlert copy your API key and your approved 6-letter sender ID.', 'Register the two SMS texts (see the Message templates tab) as DLT templates.', 'Enter your mobile number with country code, for example 919876543210.'],
+  whatsapp: ['In Meta for Developers open WhatsApp, then API Setup. Copy the Phone number ID and the WhatsApp Business Account ID.', 'Create a permanent token with a system user and paste it here. It is stored encrypted.', 'Create the two message templates (see the Message templates tab), wait for approval, then type their names below.', 'Enter your own number with country code and no plus sign, for example 919876543210.', 'To also confirm to each visitor on WhatsApp, create the two visitor templates, wait for approval, type their names, then set “Also message the visitor” to on.'],
+  sms: ['In SMSAlert copy your API key and your approved 6-letter sender ID.', 'Register the two SMS texts (see the Message templates tab) as DLT templates.', 'Enter your mobile number with country code, for example 919876543210.', 'To also text each visitor, register the two visitor templates, then set “Also text the visitor” to on.'],
 };
 
 const srcLabel = (i: SettingStatus) => (i.source === 'admin' ? <span className="src" style={{ color: 'var(--ok)' }}>Saved here</span> : i.source === 'env' ? <span className="src" style={{ color: 'var(--info)' }}>Set on server</span> : <span className="src" style={{ color: 'var(--mut)' }}>Not set</span>);
@@ -101,11 +101,22 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
                 <pre className="adm-code">{t.body}</pre>
                 <small className="adm-sub">Samples: {t.sample.map((x, i) => `{{${i + 1}}} = ${x}`).join(' · ')}</small>
               </div>))}
+            <div className="adm-h3">To the visitor (their confirmation)</div>
+            <p className="adm-sub">Create these two as well. Turn them on with “Also message the visitor on WhatsApp” on the WhatsApp tab once both are approved.</p>
+            {Object.values(WA_CLIENT_TEMPLATES).map((t) => (
+              <div key={t.name} style={{ marginTop: 14 }}>
+                <b>{t.name}</b> <span className="adm-badge off">{t.category}</span>
+                <pre className="adm-code">{t.body}</pre>
+                <small className="adm-sub">Samples: {t.sample.map((x, i) => `{{${i + 1}}} = ${x}`).join(' · ')}</small>
+              </div>))}
           </div>
           <div className="adm-card" style={{ alignSelf: 'start' }}>
             <div className="adm-card-h"><h2>SMS templates (DLT)</h2></div>
             <p className="adm-sub">Register these as Transactional DLT templates and get them approved in SMSAlert. The slots are filled automatically, in order. The text sent must match exactly.</p>
             {Object.entries(SMS_TEMPLATES).map(([k, v]) => <div key={k} style={{ marginTop: 14 }}><b>{k === 'scan' ? 'Scan enquiry' : 'Solution enquiry'}</b><pre className="adm-code">{v}</pre></div>)}
+            <div className="adm-h3">To the visitor (their confirmation)</div>
+            <p className="adm-sub">Register these two as well. The report link in the first one needs your domain approved (whitelisted) in DLT. Turn them on with “Also text the visitor” on the SMS tab.</p>
+            {Object.entries(SMS_CLIENT_TEMPLATES).map(([k, v]) => <div key={k} style={{ marginTop: 14 }}><b>{k === 'scan' ? 'After a scan' : 'After asking for help'}</b><pre className="adm-code">{v}</pre></div>)}
           </div>
         </div>
       )}

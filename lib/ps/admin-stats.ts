@@ -14,7 +14,7 @@ export interface Dashboard {
   latest: Enquiry[]; needFollowUp: Enquiry[];
 }
 
-const CHANNELS: [string, string][] = [['whatsapp', 'WhatsApp'], ['sms', 'SMS'], ['ownerEmail', 'Email to you'], ['visitorEmail', 'Email to visitor'], ['webhook', 'Chat webhook']];
+const CHANNELS: [string, string][] = [['whatsapp', 'WhatsApp'], ['sms', 'SMS'], ['ownerEmail', 'Email to you'], ['visitorEmail', 'Email to visitor'], ['clientWhatsapp', 'WhatsApp to visitor'], ['clientSms', 'SMS to visitor'], ['webhook', 'Chat webhook']];
 
 export async function dashboard(): Promise<Dashboard> {
   const [enq, scans] = await Promise.all([listEnquiries(), listScans()]);

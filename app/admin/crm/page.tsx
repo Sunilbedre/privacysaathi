@@ -14,7 +14,7 @@ const short = (iso: string) => new Date(iso).toLocaleString('en-IN', { day: 'num
 const href = (sp: SP, over: Partial<SP>) => { const m = { ...sp, ...over } as Record<string, string | undefined>; const q = Object.entries(m).filter(([, v]) => v).map(([k, v]) => `${k}=${encodeURIComponent(v!)}`).join('&'); return `/qwedsa/crm${q ? '?' + q : ''}`; };
 const digits = (p: string) => { const d = p.replace(/\D/g, ''); return d.length === 10 ? '91' + d : d; };
 const scoreCls = (n: number | null) => (n == null ? '' : n < 40 ? 'lo' : n < 70 ? 'mid' : 'hi');
-const ALERT_LABEL: Record<string, string> = { whatsapp: 'WhatsApp', sms: 'SMS', ownerEmail: 'Email to you', visitorEmail: 'Email to visitor', webhook: 'Chat webhook' };
+const ALERT_LABEL: Record<string, string> = { whatsapp: 'WhatsApp', sms: 'SMS', ownerEmail: 'Email to you', visitorEmail: 'Email to visitor', clientWhatsapp: 'WhatsApp to visitor', clientSms: 'SMS to visitor', webhook: 'Chat webhook' };
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((x) => x[0]?.toUpperCase() ?? '').join('') || '?';
 
 function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
@@ -61,7 +61,7 @@ function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
       <div className="adm-h3">Activity</div>
       <ul className="adm-time">{timeline.map((t) => <li key={t.at + t.text}><small>{short(t.at)}</small>{t.note ? t.text : <b>{t.text}</b>}</li>)}</ul>
 
-      <div className="adm-h3">Alerts sent to you</div>
+      <div className="adm-h3">Messages sent</div>
       <div className="adm-health">{Object.keys(ALERT_LABEL).map((k) => { const v = e.alerts?.[k]; const good = v === 'sent' || v === 'outbox'; return <div key={k}><span>{ALERT_LABEL[k]}</span><span className={`adm-badge ${v === 'failed' ? 'bad' : good ? 'ok' : 'off'}`}>{v === 'outbox' ? 'saved (test)' : v ?? 'not sent'}</span></div>; })}</div>
     </aside>
   );

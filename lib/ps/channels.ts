@@ -6,12 +6,17 @@ export type ChannelResult = 'sent' | 'failed' | 'skipped' | 'outbox';
 const nums = (k: string) => (getSetting(k) ?? '').split(/[,;]/).map((s) => s.replace(/\D/g, '')).filter((s) => s.length >= 10 && s.length <= 15);
 const devOutbox = () => process.env.NODE_ENV !== 'production' || process.env.PS_MAIL_OUTBOX === '1';
 
+/** A visitor's phone as digits with country code. A 10-digit Indian mobile gets 91 in front. */
+export const intlPhone = (p: string) => { const d = String(p ?? '').replace(/\D/g, ''); return d.length === 10 ? '91' + d : d.length === 11 && d.startsWith('0') ? '91' + d.slice(1) : d; };
+/** Switch values saved in Settings: on / yes / 1 / true. */
+export const isOn = (k: string) => /^(on|yes|1|true)$/i.test((getSetting(k) ?? '').trim());
+
 /** WhatsApp template parameters must be single-line and short. */
 export const waText = (s: unknown, max = 120) => String(s ?? '').replace(/[\r\n\t]+/g, ' ').replace(/ {2,}/g, ' ').trim().slice(0, max) || '-';
 
 /** WhatsApp Cloud API template message to the owner number(s). */
-export async function sendWhatsApp(template: string | undefined, params: string[]): Promise<ChannelResult> {
-  const id = getSetting('WA_PHONE_NUMBER_ID'), token = getSetting('WA_TOKEN'), to = nums('WA_OWNER_NUMBERS');
+export async function sendWhatsApp(template: string | undefined, params: string[], recipients?: string[]): Promise<ChannelResult> {
+  const id = getSetting('WA_PHONE_NUMBER_ID'), token = getSetting('WA_TOKEN'), to = recipients ? recipients.map(intlPhone).filter((x) => x.length >= 10 && x.length <= 15) : nums('WA_OWNER_NUMBERS');
   if (!id || !token || !template || !to.length) return 'skipped';
   const lang = getSetting('WA_TEMPLATE_LANG') || 'en';
   const results = await Promise.all(to.map(async (n) => {
@@ -29,8 +34,8 @@ export async function sendWhatsApp(template: string | undefined, params: string[
  * SMS through SMSAlert (smsalert.co.in). Indian DLT rules: the text sent must match your approved template, so each message is built
  * from a fixed template where the {#var#} slots are filled in. SMSAlert answers HTTP 200 even for errors, so we read its JSON status.
  */
-export async function sendSms(text: string): Promise<ChannelResult> {
-  const key = getSetting('SMS_API_KEY'), sender = getSetting('SMS_SENDER_ID'), to = nums('SMS_OWNER_NUMBERS');
+export async function sendSms(text: string, recipients?: string[]): Promise<ChannelResult> {
+  const key = getSetting('SMS_API_KEY'), sender = getSetting('SMS_SENDER_ID'), to = recipients ? recipients.map(intlPhone).filter((x) => x.length >= 10 && x.length <= 15) : nums('SMS_OWNER_NUMBERS');
   if (!key || !sender || !to.length) return 'skipped';
   const res = await fetch('https://www.smsalert.co.in/api/push.json', {
     method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', accept: 'application/json' }, signal: AbortSignal.timeout(8000),

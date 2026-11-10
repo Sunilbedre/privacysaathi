@@ -2,7 +2,8 @@ import 'server-only';
 import { getSetting } from '@/lib/settings';
 import { esc, type Mail } from './mail';
 import { patchEnquiry, type Enquiry } from './crm';
-import { fillSms, sendSms, sendWhatsApp, type ChannelResult } from './channels';
+import { fillSms, isOn, sendSms, sendWhatsApp, type ChannelResult } from './channels';
+import { PS_SITE } from './config';
 import { ownerRecipients, postWebhook, sendMail } from './notify';
 import { crore } from './dpdp-map';
 
@@ -14,6 +15,15 @@ const gist = (e: Enquiry) => `score ${e.score ?? '-'}/100${e.exposureCr ? `, up 
 export const WA_TEMPLATES = {
   scan: { name: 'ps_scan_enquiry', category: 'Utility', body: 'New Privacy Saathi scan enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nResult: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'score 38/100, up to ₹250 crore', 'https://privacysaathi.in/qwedsa/crm?e=abc123'] },
   solution: { name: 'ps_solution_enquiry', category: 'Utility', body: 'New Privacy Saathi SOLUTION enquiry.\nName: {{1}}\nPhone: {{2}}\nBusiness: {{3}}\nWants help with: {{4}}\nOpen in CRM: {{5}}', sample: ['Asha Rao', '+91 98765 43210', 'example.com', 'Security safeguards', 'https://privacysaathi.in/qwedsa/crm?e=abc123'] },
+} as const;
+/** Messages to the visitor (client). Same rules: register exactly, then switch on in Settings. */
+export const WA_CLIENT_TEMPLATES = {
+  scan: { name: 'ps_client_scan', category: 'Utility', body: 'Hi {{1}}, thanks for checking {{2}} with Privacy Saathi. Your DPDP readiness result: {{3}}. Your report: {{4}}\nA Bedre consultant may contact you to explain the next steps.', sample: ['Asha', 'example.com', 'score 38/100', 'https://privacysaathi.in/report/abc123'] },
+  solution: { name: 'ps_client_solution', category: 'Utility', body: 'Hi {{1}}, we received your request for help with {{2}}. A Bedre consultant will call you on {{3}}. Reference: {{4}}\nPrivacy Saathi by Bedre Web Technologies.', sample: ['Asha', 'Security safeguards', '+91 98765 43210', 'abc123'] },
+} as const;
+export const SMS_CLIENT_TEMPLATES = {
+  scan: 'Hi {#var#}, thanks for using Privacy Saathi. Your DPDP report: {#var#} - Bedre Web Technologies',
+  solution: 'Hi {#var#}, we received your request for {#var#}. A Bedre consultant will call you soon. Ref {#var#}. - Privacy Saathi',
 } as const;
 /** Register these exactly in SMSAlert / DLT. {#var#} slots are filled in order. */
 export const SMS_TEMPLATES = {
@@ -46,15 +56,24 @@ export async function alertEnquiry(e: Enquiry, opts: { skipOwnerMail?: boolean; 
   const t = e.type === 'solution';
   const topic = t ? e.topic : gist(e);
   const owners = ownerRecipients();
-  const [wa, sms, mail, hook, vis] = await Promise.allSettled([
+  const first = e.name.trim().split(/\s+/)[0] || 'there';
+  const reportUrl = e.scanId ? `${PS_SITE}/report/${e.scanId}` : PS_SITE;
+  const [wa, sms, mail, hook, vis, cwa, csms] = await Promise.allSettled([
     sendWhatsApp(getSetting(t ? 'WA_TEMPLATE_SOLUTION' : 'WA_TEMPLATE_SCAN'), [e.name, e.phone, who(e), topic, crmLink(e.id)]),
     sendSms(fillSms(SMS_TEMPLATES[t ? 'solution' : 'scan'], [e.name, e.phone, topic, e.id])),
     opts.skipOwnerMail || !owners.length ? Promise.resolve('skipped' as const) : sendMail({ to: owners, mail: ownerMail(e), replyTo: e.email, kind: 'owner' }),
     postWebhook(`${t ? ':bulb: *SOLUTION enquiry*' : ':mag: *Scan enquiry*'}: ${who(e)} · ${e.name} · ${e.phone}${e.topic ? ` · ${e.topic}` : ''}\n${crmLink(e.id)}`),
     opts.visitorMail ? sendMail({ to: e.email, mail: opts.visitorMail, replyTo: owners[0], kind: 'visitor' }) : Promise.resolve('skipped' as const),
+    // Confirmation to the visitor on their own phone. Off until switched on in Settings (templates must be approved first).
+    isOn('WA_CLIENT_SEND') && e.phone
+      ? sendWhatsApp(getSetting(t ? 'WA_TEMPLATE_CLIENT_SOLUTION' : 'WA_TEMPLATE_CLIENT_SCAN'), t ? [first, e.topic || 'DPDP readiness', e.phone, e.id] : [first, who(e), gist(e).split(',')[0], reportUrl], [e.phone])
+      : Promise.resolve('skipped' as const),
+    isOn('SMS_CLIENT_SEND') && e.phone
+      ? sendSms(fillSms(SMS_CLIENT_TEMPLATES[t ? 'solution' : 'scan'], t ? [first, e.topic || 'DPDP readiness', e.id] : [first, reportUrl]), [e.phone])
+      : Promise.resolve('skipped' as const),
   ]);
   const v = <T,>(r: PromiseSettledResult<T>) => (r.status === 'fulfilled' ? String(r.value) : 'failed');
-  const alerts = { whatsapp: v(wa), sms: v(sms), ownerEmail: v(mail), webhook: hook.status === 'fulfilled' ? (hook.value ? 'sent' : 'skipped') : 'failed', visitorEmail: v(vis) };
+  const alerts = { whatsapp: v(wa), sms: v(sms), ownerEmail: v(mail), webhook: hook.status === 'fulfilled' ? (hook.value ? 'sent' : 'skipped') : 'failed', visitorEmail: v(vis), clientWhatsapp: v(cwa), clientSms: v(csms) };
   await patchEnquiry(e.id, { alerts });
   return alerts;
 }

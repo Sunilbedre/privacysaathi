@@ -357,7 +357,7 @@ export default function DpdpCheck() {
                         <label>Best time to call (optional)<select value={enq.time} onChange={(e) => setEnq({ ...enq, time: e.target.value })}><option value="">Any time</option><option>Morning</option><option>Afternoon</option><option>Evening</option></select></label>
                       </div>
                       <label>Anything we should know? (optional)<textarea rows={2} maxLength={500} value={enq.message} onChange={(e) => setEnq({ ...enq, message: e.target.value })} placeholder="For example: we use Shopify and WhatsApp for orders." /></label>
-                      <label className="ps-pu-chk"><input type="checkbox" checked={enq.consent} onChange={(e) => setEnq({ ...enq, consent: e.target.checked })} /><span>Yes, a Bedre consultant may contact me about this request.</span></label>
+                      <label className="ps-pu-chk"><input type="checkbox" checked={enq.consent} onChange={(e) => setEnq({ ...enq, consent: e.target.checked })} /><span>Yes, a Bedre consultant may contact me by phone, WhatsApp, SMS or email about this request.</span></label>
                       {enqErr && <p role="alert" className="ps-pu-err">{enqErr}</p>}
                       <button className="ps-pu-btn" disabled={enqBusy}>{enqBusy ? 'Sending…' : 'Request help'} <ArrowRight size={18} aria-hidden /></button>
                     </form>

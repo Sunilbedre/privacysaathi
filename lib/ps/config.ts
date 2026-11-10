@@ -12,4 +12,4 @@ export function sourceForHost(h: string | null | undefined): string | null {
   return m[stripHost(h)] ?? null;
 }
 
-export const PS_CONSENT = 'I agree that Bedre Web Technologies may contact me about this assessment and store my details and scan summary for up to 90 days. I confirm I am authorised to assess the website I entered.';
+export const PS_CONSENT = 'I agree that Bedre Web Technologies may contact me by phone, WhatsApp, SMS and email about this assessment and store my details and scan summary for up to 90 days. I confirm I am authorised to assess the website I entered.';
