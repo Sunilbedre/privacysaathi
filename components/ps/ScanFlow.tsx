@@ -6,6 +6,7 @@ import { emailDomain, emailProblem, parseWebsite, phoneProblem, sameCompany } fr
 import { PS_CONSENT } from '@/lib/ps/config';
 import { captureTags, track } from './PsTrack';
 import { usePsBase } from './PsCtx';
+import { useOtp } from './useOtp';
 
 const INDUSTRIES: [string, string][] = [['retail', 'Retail and e-commerce'], ['education', 'Education'], ['healthcare', 'Healthcare'], ['fintech', 'Fintech and financial services'], ['manufacturing', 'Manufacturing'], ['realestate', 'Real estate'], ['hospitality', 'Hospitality'], ['professional', 'Professional services'], ['saas', 'SaaS and IT'], ['agency', 'Agency'], ['other', 'Other']];
 const SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'];
@@ -85,12 +86,13 @@ export default function ScanFlow() {
     return () => clearInterval(t);
   }, [scanId, scan?.status]);
 
+  const otp = useOtp(f.phone);
   const validateIntake = () => {
     const e: Record<string, string> = {};
     if (f.name.trim().length < 2) e.name = 'Please enter your name';
     const em = emailProblem(f.email); if (em && !(free && !/valid email/i.test(em))) e.email = em; // free mail allowed here, but gated later
     if (!f.email.trim()) e.email = 'Please enter your email';
-    const pp = phoneProblem(f.phone); if (pp) e.phone = pp;
+    const pp = phoneProblem(f.phone) || otp.check(); if (pp) e.phone = pp;
     if (!noSite && !site) e.website = 'Enter a valid website, for example yourcompany.com';
     if (!f.industry) e.industry = 'Please choose your industry';
     if (!f.size) e.size = 'Please choose a size';
@@ -150,7 +152,7 @@ export default function ScanFlow() {
     const answers = { ...rest, data, children: data && (data as string[]).includes('children') ? 'yes' : rest.children };
     const r = await fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       path, scanId: scanId ?? undefined, name: f.name, email: f.email, phone: f.phone, website: noSite ? '' : f.website, noWebsite: noSite, company: f.company, industry: f.industry || 'other', size: f.size,
-      officialEmail: noOfficial ? 'no' : 'yes', channels: channels ?? [], answers, consent: f.consent, authorised: f.authorised, hp: f.hp, tags: { ...captureTags(), form_page: location.pathname },
+      officialEmail: noOfficial ? 'no' : 'yes', channels: channels ?? [], answers, consent: f.consent, authorised: f.authorised, hp: f.hp, otpToken: otp.token, tags: { ...captureTags(), form_page: location.pathname },
     }) }).catch(() => null);
     const j = r ? await r.json().catch(() => ({})) : {};
     setBusy(false);
@@ -171,10 +173,11 @@ export default function ScanFlow() {
     <Shell step={0}>
       <h1>Let us help you set up official email</h1>
       <p className="ps-sub">Business email on your own domain can be secured, backed up and audited. Free mail cannot. Tell us who you are and we will call you. No website needed.</p>
-      <form className="ps-f" onSubmit={(e) => { e.preventDefault(); const er: Record<string, string> = {}; if (f.name.trim().length < 2) er.name = 'Please enter your name'; if (!f.company.trim()) er.company = 'Please enter your business name'; const pp = phoneProblem(f.phone); if (pp) er.phone = pp; if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email)) er.email = 'Please enter an email we can reach you on'; if (!f.consent) er.consent = 'Please tick the consent box'; setErrs(er); if (!Object.keys(er).length) void submitLead('email_help'); }} noValidate>
+      <form className="ps-f" onSubmit={(e) => { e.preventDefault(); const er: Record<string, string> = {}; if (f.name.trim().length < 2) er.name = 'Please enter your name'; if (!f.company.trim()) er.company = 'Please enter your business name'; const pp = phoneProblem(f.phone) || otp.check(); if (pp) er.phone = pp; if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email)) er.email = 'Please enter an email we can reach you on'; if (!f.consent) er.consent = 'Please tick the consent box'; setErrs(er); if (!Object.keys(er).length) void submitLead('email_help'); }} noValidate>
         <label className="f">Your name<input type="text" value={f.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" />{err('name')}</label>
         <label className="f">Business name<input type="text" value={f.company} onChange={(e) => set('company', e.target.value)} autoComplete="organization" />{err('company')}</label>
         <label className="f">Phone<input type="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />{err('phone')}</label>
+        {otp.node}
         <label className="f">Email we can reach you on<input type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" />{err('email')}</label>
         <label className="ps-check"><input type="checkbox" checked={f.consent} onChange={(e) => set('consent', e.target.checked)} /><span>{PS_CONSENT.replace(' I confirm I am authorised to assess the website I entered.', '')}</span></label>{err('consent')}
         {msg && <span role="alert" className="ps-err">{msg}</span>}
@@ -255,6 +258,7 @@ export default function ScanFlow() {
         )}
         <label className="f">Your name<input type="text" value={f.name} onChange={(e) => set('name', e.target.value)} autoComplete="name" />{err('name')}</label>
         <label className="f">Phone<input type="tel" value={f.phone} onChange={(e) => set('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />{err('phone')}</label>
+        {otp.node}
         <label className="f">Business name (optional)<input type="text" value={f.company} onChange={(e) => set('company', e.target.value)} autoComplete="organization" /></label>
         <label className="f">Industry
           <select value={f.industry} onChange={(e) => set('industry', e.target.value)}><option value="">Choose…</option>{INDUSTRIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>{err('industry')}

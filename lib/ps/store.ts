@@ -9,7 +9,7 @@ import type { Origin } from '@/lib/ps/origin';
 export interface ScanRecord {
   id: string; domain: string; url: string; deep: boolean; status: 'running' | 'done' | 'error';
   step: string; pct: number; createdAt: string; expiresAt: string; ipHash: string; error?: string;
-  result?: ScanResult; answers?: Answers; noOfficialEmail?: boolean; company?: string; leadCaptured?: boolean; industry?: string; size?: string; websiteless?: boolean; origin?: Origin;
+  result?: ScanResult; answers?: Answers; noOfficialEmail?: boolean; company?: string; leadCaptured?: boolean; industry?: string; size?: string; websiteless?: boolean; origin?: Origin; phoneVerified?: string;
 }
 
 /** Repository layer. Today: JSON files on disk (PS_DATA_DIR). Swap this file for Postgres or SQLite later. */

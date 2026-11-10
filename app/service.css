@@ -2655,3 +2655,13 @@
   .ps-dc .ps-ch-grid .ps-ch-lead{order:3;margin-top:6px}
   .ps-dc .ps-ch-grid .ps-dc-facts{order:4;margin-top:6px}
 }
+
+/* Mobile number verification (WhatsApp code) */
+.ps-otp{display:grid;gap:8px;margin:8px 0 4px;font-size:.88rem}
+.ps-otp.ok{color:#0E7A55;font-weight:700;background:#E3F6EE;border-radius:10px;padding:9px 12px}
+.ps-otp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ps-otp-row input{flex:1;min-width:130px;letter-spacing:.3em;font-weight:700;text-align:center}
+.ps-otp-btn{border:0;border-radius:10px;background:#25D366;color:#06301A;font-weight:700;padding:11px 16px;cursor:pointer;font:inherit;font-weight:700}
+.ps-otp-btn:disabled{opacity:.6;cursor:wait}
+.ps-otp-link{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;opacity:.85}.ps-otp-link:disabled{opacity:.5;cursor:default;text-decoration:none}
+.ps-otp-msg{color:inherit;opacity:.8;font-size:.82rem}

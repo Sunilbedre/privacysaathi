@@ -6,6 +6,7 @@ import { emailProblem, parseWebsite, phoneProblem } from '@/lib/lead-rules';
 import { PS_CONSENT } from '@/lib/ps/config';
 import { captureTags, track } from './PsTrack';
 import { usePsBase } from './PsCtx';
+import { useOtp } from './useOtp';
 
 /** Pages where the popup never appears: the funnel pages themselves, legal pages and the DPDP page (it has its own assessment). */
 const SKIP = /^\/(scan|report|thanks|sign-in|portal|privacy|terms|dpdp)(\/|$)/;
@@ -18,6 +19,7 @@ export default function PsPopup() {
   const rel = path.startsWith(base) ? path.slice(base.length) || '/' : path;
   const [open, setOpen] = useState(false), [mode, setMode] = useState<'site' | 'nosite'>('site');
   const [f, setF] = useState({ site: '', company: '', name: '', phone: '', email: '', consent: false, hp: '' });
+  const otp = useOtp(f.phone);
   const [errs, setErrs] = useState<Record<string, string>>({}), [state, setState] = useState<'form' | 'scanning' | 'done'>('form'), [pct, setPct] = useState(0);
   const dlg = useRef<HTMLDivElement>(null), opener = useRef<HTMLElement | null>(null), fired = useRef(false);
   const blocked = SKIP.test(rel);
@@ -72,14 +74,14 @@ export default function PsPopup() {
     if (mode === 'site' && !s) er.site = 'Enter your website, for example yourcompany.com';
     if (mode === 'nosite' && f.company.trim().length < 2) er.company = 'Please enter your company name';
     if (f.name.trim().length < 2) er.name = 'Please enter your name';
-    const pp = phoneProblem(f.phone); if (pp) er.phone = pp;
+    const pp = phoneProblem(f.phone) || otp.check(); if (pp) er.phone = pp;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.trim())) er.email = 'Please enter a valid email';
     if (!f.consent) er.consent = 'Please tick the consent box';
     setErrs(er); if (Object.keys(er).length) return;
     const free = !!emailProblem(f.email) && !/valid email/i.test(emailProblem(f.email) ?? '');
     const lead = (scanId?: string) => fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       scanId, name: f.name, email: f.email, phone: f.phone, website: mode === 'site' ? s!.domain : '', noWebsite: mode === 'nosite', company: f.company, industry: 'other',
-      officialEmail: free ? 'no' : 'yes', answers: {}, consent: true, authorised: true, hp: f.hp, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'popup' },
+      officialEmail: free ? 'no' : 'yes', answers: {}, consent: true, authorised: true, hp: f.hp, otpToken: otp.token, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'popup' },
     }) }).then(async (r) => ({ ok: r.ok, j: await r.json().catch(() => ({})) })).catch(() => ({ ok: false, j: {} as Record<string, string> }));
 
     if (mode === 'nosite') {
@@ -134,6 +136,7 @@ export default function PsPopup() {
                 <label>Mobile number<input type="tel" value={f.phone} onChange={(e) => up('phone', e.target.value)} autoComplete="tel" placeholder="+91 98765 43210" />{err('phone')}</label>
                 <label>Work email<input type="email" value={f.email} onChange={(e) => up('email', e.target.value)} autoComplete="email" placeholder="you@company.com" />{err('email')}</label>
               </div>
+              {otp.node}
               <label className="ps-pu-chk"><input type="checkbox" checked={f.consent} onChange={(e) => up('consent', e.target.checked)} /><span>{PS_CONSENT.replace(' I confirm I am authorised to assess the website I entered.', '')}</span></label>{err('consent')}
               {errs.form && <p role="alert" className="ps-pu-err">{errs.form}</p>}
               <button className="ps-pu-btn">{mode === 'site' ? 'Scan and send me the report' : 'Request my DPDP review'} <ArrowRight size={18} aria-hidden /></button>

@@ -34,7 +34,7 @@ const TABS = [
 const GUIDE: Record<string, string[]> = {
   alerts: ['Enter the inbox (or inboxes, separated by commas) that should get every new enquiry.', 'Enter the address of this admin, for example https://privacysaathi.in, so alert links open the right enquiry.'],
   email: ['Log in to Mail Baby and copy the SMTP server, port, username and password.', 'Use a From address on a domain Mail Baby allows, for example Privacy Saathi <hello@privacysaathi.in>.', 'Save, then press “Send test email”.'],
-  whatsapp: ['In Meta for Developers open WhatsApp, then API Setup. Copy the Phone number ID and the WhatsApp Business Account ID.', 'Create a permanent token with a system user and paste it here. It is stored encrypted.', 'Create the two message templates (see the Message templates tab), wait for approval, then type their names below.', 'Enter your own number with country code and no plus sign, for example 919876543210.', 'To also confirm to each visitor on WhatsApp, create the two visitor templates, wait for approval, type their names, then set “Also message the visitor” to on.'],
+  whatsapp: ['In Meta for Developers open WhatsApp, then API Setup. Copy the Phone number ID and the WhatsApp Business Account ID.', 'Create a permanent token with a system user and paste it here. It is stored encrypted.', 'Create the two message templates (see the Message templates tab), wait for approval, then type their names below.', 'Enter your own number with country code and no plus sign, for example 919876543210.', 'To make every visitor verify their mobile number first, create the verification template (Message templates tab), then set “Verify visitors’ mobile numbers” to on.', 'To also confirm to each visitor on WhatsApp, create the two visitor templates, wait for approval, type their names, then set “Also message the visitor” to on.'],
   sms: ['In SMSAlert copy your API key and your approved 6-letter sender ID.', 'Register the two SMS texts (see the Message templates tab) as DLT templates.', 'Enter your mobile number with country code, for example 919876543210.', 'To also text each visitor, register the two visitor templates, then set “Also text the visitor” to on.'],
 };
 
@@ -95,6 +95,10 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <div className="adm-card">
             <div className="adm-card-h"><h2>WhatsApp templates</h2><span>Meta WhatsApp Manager, Message templates, Create</span></div>
             <p className="adm-sub">Choose category <b>Utility</b>, language English. Paste the name and text exactly and add the sample values. After approval, type the names on the WhatsApp tab.</p>
+            <div style={{ marginTop: 14 }}>
+              <b>ps_otp_mobile_verification</b> <span className="adm-badge off">Authentication</span>
+              <p className="adm-sub" style={{ margin: '6px 0' }}>Category <b>Authentication</b>, language English. Choose “Copy code” as the button and tick “Add security recommendation”. Meta writes the text itself, for example: <i>123456 is your verification code. For your security, do not share this code.</i> Visitors get a 6-digit code, valid for 10 minutes.</p>
+            </div>
             {Object.values(WA_TEMPLATES).map((t) => (
               <div key={t.name} style={{ marginTop: 14 }}>
                 <b>{t.name}</b> <span className="adm-badge off">{t.category}</span>

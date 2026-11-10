@@ -7,6 +7,7 @@ import { PS_CONSENT } from '@/lib/ps/config';
 import { captureTags, track } from './PsTrack';
 import { PsLink } from './PsCtx';
 import { useDialog } from './useDialog';
+import { useOtp } from './useOtp';
 
 type Phase = 'start' | 'scanning' | 'questions' | 'gate' | 'results';
 const CONF = { confirmed: 'Confirmed', likely: 'Likely: please verify', self: 'From your answers', unseen: 'Not visible from outside' } as const;
@@ -36,6 +37,7 @@ export default function DpdpCheck() {
   const [sum, setSum] = useState<DpdpSummary | null>(null), [domain, setDomain] = useState('');
   const [ans, setAns] = useState<Record<string, string>>({});
   const [lead, setLead] = useState({ name: '', phone: '', email: '', consent: false, hp: '' });
+  const otp = useOtp(lead.phone);
   const [lerr, setLerr] = useState<Record<string, string>>({}), [lbusy, setLbusy] = useState(false);
   const [details, setDetails] = useState<Detail[] | null>(null);
   const [mailed, setMailed] = useState<'sent' | 'gated' | 'none'>('none');
@@ -145,7 +147,7 @@ export default function DpdpCheck() {
     e.preventDefault();
     const er: Record<string, string> = {};
     if (lead.name.trim().length < 2) er.name = 'Please enter your name';
-    const pp = phoneProblem(lead.phone); if (pp) er.phone = pp;
+    const pp = phoneProblem(lead.phone) || otp.check(); if (pp) er.phone = pp;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(lead.email.trim())) er.email = 'Please enter a valid email';
     if (!lead.consent) er.consent = 'Please tick the consent box';
     setLerr(er); if (Object.keys(er).length || !id) return;
@@ -153,7 +155,7 @@ export default function DpdpCheck() {
     const free = !!emailProblem(lead.email) && !/valid email/i.test(emailProblem(lead.email) ?? '');
     const r = await fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       scanId: id, name: lead.name, email: lead.email, phone: lead.phone, website: mode === 'site' ? domain : '', noWebsite: mode === 'nosite', company, industry: industry || 'other',
-      officialEmail: free ? 'no' : 'yes', answers: ans, consent: true, authorised: true, hp: lead.hp, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'dpdp_check' },
+      officialEmail: free ? 'no' : 'yes', answers: ans, consent: true, authorised: true, hp: lead.hp, otpToken: otp.token, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'dpdp_check' },
     }) }).catch(() => null);
     const j = r ? await r.json().catch(() => ({})) : {};
     if (!r || !r.ok) { setLbusy(false); setLerr({ form: j.error ?? 'Something went wrong. Please try again.' }); return; }
@@ -229,6 +231,7 @@ export default function DpdpCheck() {
                     <label>Mobile number<input type="tel" value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} autoComplete="tel" placeholder="+91 98765 43210" />{ferr('phone')}</label>
                     <label>Work email<input type="email" value={lead.email} onChange={(e) => setLead({ ...lead, email: e.target.value })} autoComplete="email" placeholder="you@company.com" />{ferr('email')}</label>
                   </div>
+                  {otp.node}
                   {mode === 'site' && <label>Company name (optional)<input value={company} onChange={(e) => setCompany(e.target.value)} autoComplete="organization" /></label>}
                   <label className="ps-pu-chk"><input type="checkbox" checked={lead.consent} onChange={(e) => setLead({ ...lead, consent: e.target.checked })} /><span>{PS_CONSENT.replace(' I confirm I am authorised to assess the website I entered.', '')}</span></label>{ferr('consent')}
                   {lerr.form && <p role="alert" className="ps-pu-err">{lerr.form}</p>}

@@ -12,6 +12,8 @@ import { ownerRecipients, sendMail } from '@/lib/ps/notify';
 import { createEnquiry } from '@/lib/ps/crm';
 import { alertEnquiry } from '@/lib/ps/enquiry';
 import { originFromTags, sourceLabel } from '@/lib/ps/origin';
+import { checkToken, otpEnabled } from '@/lib/ps/otp';
+import { intlPhone } from '@/lib/ps/channels';
 
 const INDUSTRIES = ['retail', 'education', 'healthcare', 'fintech', 'manufacturing', 'realestate', 'hospitality', 'professional', 'saas', 'agency', 'other'];
 
@@ -22,7 +24,7 @@ const schema = z.object({
   industry: z.string().max(30).optional().default('other'), size: z.string().max(20).optional().default(''), officialEmail: z.enum(['yes', 'no']).optional().default('yes'),
   channels: z.array(z.string().max(40)).max(10).optional().default([]),
   answers: z.record(z.string(), z.unknown()).optional().default({}), consent: z.literal(true, { message: 'Please tick the consent box' }),
-  authorised: z.boolean().optional().default(false), hp: z.string().max(0).optional(), tags: z.record(z.string(), z.string().max(300)).optional().default({}),
+  authorised: z.boolean().optional().default(false), otpToken: z.string().max(300).optional(), hp: z.string().max(0).optional(), tags: z.record(z.string(), z.string().max(300)).optional().default({}),
 });
 
 export async function POST(req: Request) {
@@ -40,7 +42,9 @@ export async function POST(req: Request) {
   if (needsSite && !site) errors.website = 'Please enter a valid website, for example yourcompany.com';
   if (needsSite && !d.authorised) errors.authorised = 'Please confirm you are authorised to assess this website';
   if (d.path === 'email_help' && !d.company) errors.company = 'Please enter your business name';
-  if (Object.keys(errors).length) return NextResponse.json({ error: Object.values(errors)[0], errors }, { status: 400 });
+  const verified = otpEnabled() && checkToken(d.otpToken, d.phone);
+  if (otpEnabled() && !verified) errors.phone = 'Please verify your mobile number with the WhatsApp code';
+  if (Object.keys(errors).length) return NextResponse.json({ error: Object.values(errors)[0], errors, field: Object.keys(errors)[0] }, { status: 400 });
 
   // Official email: detected from the address, and also what the visitor told us.
   const noOfficialEmail = d.path === 'email_help' || !!emailProblem(d.email) || d.officialEmail === 'no';
@@ -57,7 +61,7 @@ export async function POST(req: Request) {
   }
   const answers = { ...d.answers, ...(d.channels.length ? { channels: d.channels } : {}) } as Answers;
   const industry = INDUSTRIES.includes(d.industry) ? d.industry : 'other';
-  await updateScan(id, { answers, industry, size: d.size, noOfficialEmail, company: d.company || rec.company, leadCaptured: true, origin: originFromTags(d.tags), expiresAt: new Date(Date.now() + retentionDays() * 86400_000).toISOString() });
+  await updateScan(id, { answers, industry, size: d.size, noOfficialEmail, company: d.company || rec.company, leadCaptured: true, origin: originFromTags(d.tags), ...(verified ? { phoneVerified: intlPhone(d.phone) } : {}), expiresAt: new Date(Date.now() + retentionDays() * 86400_000).toISOString() });
   const rep = buildReport(rec.result ?? null, answers);
   const dp = summariseDpdp(rep.checks, { score: rep.headline, band: rep.band, mode: rec.result?.mode ?? 'questions', pages: rec.result?.pagesScanned ?? 0 });
   const priority = priorityOf(rep.headline, dp.exposure);
@@ -91,7 +95,7 @@ export async function POST(req: Request) {
     owners.length ? sendMail({ to: owners, mail: renderOwner(ownerLead, ctx), replyTo: d.email, kind: 'owner' }) : Promise.resolve('skipped' as const),
   ]);
   // CRM record + WhatsApp / SMS / chat alerts (type 1: someone scanned and gave details to see the result).
-  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: '', message: '', preferredTime: '', source: sourceLabel(originFromTags(d.tags), lead.lead_source || 'scan'), origin: originFromTags(d.tags), utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
+  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: '', message: '', preferredTime: '', source: sourceLabel(originFromTags(d.tags), lead.lead_source || 'scan'), origin: originFromTags(d.tags), phoneVerified: verified, utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
   if (enq) await alertEnquiry(enq, { skipOwnerMail: true }).catch(() => null);
   const emailed = visitor.status === 'fulfilled' && (visitor.value === 'sent' || visitor.value === 'outbox');
   return NextResponse.json({ id, emailed, gated: noOfficialEmail, stored });

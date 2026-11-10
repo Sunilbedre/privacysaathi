@@ -19,6 +19,7 @@ export interface Enquiry {
   score: number | null; band: string; priority: 'hot' | 'warm'; exposureCr: number; gaps: number;
   topic: string; message: string; preferredTime: string; source: string; utm: string;
   notes: { at: string; text: string }[];
+  phoneVerified?: boolean; // mobile confirmed with a WhatsApp code
   origin?: Origin; // where the visitor came from, collected silently
   alerts: Record<string, string>; // channel -> sent | failed | skipped | outbox
 }

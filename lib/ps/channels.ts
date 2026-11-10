@@ -30,6 +30,22 @@ export async function sendWhatsApp(template: string | undefined, params: string[
   return results.some(Boolean) ? 'sent' : 'failed';
 }
 
+/** WhatsApp authentication template (code in the body and in the "Copy code" button), sent to the visitor's own number. */
+export async function sendWhatsAppOtp(template: string | undefined, to: string, code: string): Promise<ChannelResult> {
+  const id = getSetting('WA_PHONE_NUMBER_ID'), token = getSetting('WA_TOKEN');
+  const num = intlPhone(to);
+  if (!id || !token || !template || num.length < 10 || num.length > 15) return 'skipped';
+  const res = await fetch(`https://graph.facebook.com/v21.0/${encodeURIComponent(id)}/messages`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(8000),
+    body: JSON.stringify({ messaging_product: 'whatsapp', to: num, type: 'template', template: { name: template, language: { code: getSetting('WA_TEMPLATE_LANG') || 'en' }, components: [
+      { type: 'body', parameters: [{ type: 'text', text: code }] },
+      { type: 'button', sub_type: 'url', index: '0', parameters: [{ type: 'text', text: code }] },
+    ] } }),
+  }).catch(() => null);
+  if (!res?.ok) console.error('ps whatsapp otp failed', res?.status, res ? await res.text().catch(() => '') : '');
+  return res?.ok ? 'sent' : 'failed';
+}
+
 /**
  * SMS through SMSAlert (smsalert.co.in). Indian DLT rules: the text sent must match your approved template, so each message is built
  * from a fixed template where the {#var#} slots are filled in. SMSAlert answers HTTP 200 even for errors, so we read its JSON status.

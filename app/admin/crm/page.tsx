@@ -38,7 +38,7 @@ function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
         <a href={`mailto:${e.email}`}><Mail size={18} aria-hidden />Email</a>
       </div>
       <dl className="adm-dl">
-        <dt>Phone</dt><dd>{e.phone}</dd>
+        <dt>Phone</dt><dd>{e.phone} {e.phoneVerified ? <span className="adm-badge ok"><i />Verified by WhatsApp</span> : null}</dd>
         <dt>Email</dt><dd>{e.email}</dd>
         <dt>Website</dt><dd>{e.website || 'No website'}</dd>
         {e.type === 'scan' ? (<><dt>Result</dt><dd>{e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'} {e.band}{e.exposureCr ? ` · up to ${crore(e.exposureCr)} fine exposure` : ''}{e.gaps ? ` · ${e.gaps} gaps` : ''}</dd></>)
