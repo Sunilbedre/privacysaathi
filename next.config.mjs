@@ -7,6 +7,7 @@ const securityHeaders = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  output: 'standalone',
   serverExternalPackages: ['playwright-core'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
