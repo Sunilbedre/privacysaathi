@@ -1,6 +1,7 @@
 import 'server-only';
 import { listEnquiries, STATUSES, type Enquiry } from '@/lib/ps/crm';
 import { listScans } from '@/lib/ps/store';
+import { sourceLabel } from '@/lib/ps/origin';
 
 const TZ = 'Asia/Kolkata';
 export const dayKey = (d: Date | string) => new Date(d).toLocaleDateString('en-CA', { timeZone: TZ });
@@ -11,6 +12,7 @@ export interface Dashboard {
   series: { key: string; label: string; scan: number; solution: number }[];
   scans: { total: number; week: number; done: number; leadRate: number; failed: number };
   alerts: { channel: string; label: string; sent: number; failed: number; skipped: number }[];
+  sources: { label: string; count: number }[];
   latest: Enquiry[]; needFollowUp: Enquiry[];
 }
 
@@ -56,6 +58,7 @@ export async function dashboard(): Promise<Dashboard> {
       leadRate: done.length ? Math.round((done.filter((s) => s.leadCaptured).length / done.length) * 100) : 0, failed: scans.filter((s) => s.status === 'error').length,
     },
     alerts,
+    sources: Object.entries(enq.reduce<Record<string, number>>((m, e) => { const k = sourceLabel(e.origin, e.source || 'Not recorded'); m[k] = (m[k] ?? 0) + 1; return m; }, {})).map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count).slice(0, 6),
     latest: enq.slice(0, 6),
     needFollowUp: enq.filter((e) => e.status === 'new' && now - new Date(e.createdAt).getTime() > DAY / 2).slice(0, 5),
   };

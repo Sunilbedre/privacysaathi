@@ -79,7 +79,7 @@ export default function PsPopup() {
     const free = !!emailProblem(f.email) && !/valid email/i.test(emailProblem(f.email) ?? '');
     const lead = (scanId?: string) => fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       scanId, name: f.name, email: f.email, phone: f.phone, website: mode === 'site' ? s!.domain : '', noWebsite: mode === 'nosite', company: f.company, industry: 'other',
-      officialEmail: free ? 'no' : 'yes', answers: {}, consent: true, authorised: true, hp: f.hp, tags: { ...captureTags(), lead_source: 'popup' },
+      officialEmail: free ? 'no' : 'yes', answers: {}, consent: true, authorised: true, hp: f.hp, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'popup' },
     }) }).then(async (r) => ({ ok: r.ok, j: await r.json().catch(() => ({})) })).catch(() => ({ ok: false, j: {} as Record<string, string> }));
 
     if (mode === 'nosite') {

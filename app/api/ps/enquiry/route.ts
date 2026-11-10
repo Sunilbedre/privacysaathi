@@ -8,6 +8,7 @@ import { DUTIES, dutyOf, summariseDpdp } from '@/lib/ps/dpdp-map';
 import { priorityOf } from '@/lib/ps/mail';
 import { createEnquiry } from '@/lib/ps/crm';
 import { alertEnquiry, solutionVisitorMail } from '@/lib/ps/enquiry';
+import { sourceLabel } from '@/lib/ps/origin';
 
 /** Enquiry type 2: the visitor clicked a solution and asked Bedre to help. Only possible after the scan lead exists. */
 const schema = z.object({
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   const enq = await createEnquiry({
     type: 'solution', name: d.name, phone: d.phone, email: d.email, company: rec.company ?? '', website: rec.domain, scanId: rec.id, score: rep.headline, band: rep.band,
     priority: priorityOf(rep.headline, dp.exposure), exposureCr: duty ? duty.fineCr : dp.exposure.maxCr, gaps: dp.exposure.gaps, topic,
-    message: [d.message, gaps.length ? `Gaps: ${gaps.slice(0, 6).join('; ')}` : ''].filter(Boolean).join(' | ').slice(0, 900), preferredTime: d.preferredTime, source: 'solution_click', utm: '',
+    message: [d.message, gaps.length ? `Gaps: ${gaps.slice(0, 6).join('; ')}` : ''].filter(Boolean).join(' | ').slice(0, 900), preferredTime: d.preferredTime, source: sourceLabel(rec.origin, 'solution_click'), utm: '', origin: rec.origin,
   });
   const alerts = await alertEnquiry(enq, { visitorMail: solutionVisitorMail(enq) });
   return NextResponse.json({ ok: true, id: enq.id, emailed: alerts.visitorEmail === 'sent' || alerts.visitorEmail === 'outbox' });

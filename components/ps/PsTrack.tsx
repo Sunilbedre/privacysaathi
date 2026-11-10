@@ -10,6 +10,9 @@ export function captureTags(): Record<string, string> {
     const t: Record<string, string> = { ...saved };
     for (const k of TRACK) { const v = q.get(k); if (v) t[k] = v.slice(0, 200); }
     if (!t.ref) t.ref = document.referrer.slice(0, 300);
+    if (!t.landing_url) t.landing_url = location.href.split('#')[0].slice(0, 300);
+    if (!t.device) t.device = window.innerWidth < 640 ? 'Phone' : window.innerWidth < 1024 ? 'Tablet' : 'Desktop';
+    if (!t.lang) t.lang = (navigator.language || '').slice(0, 12);
     t.landing_host = location.host;
     sessionStorage.setItem('ps-tags', JSON.stringify(t));
     return t;

@@ -11,6 +11,7 @@ import { priorityOf, renderOwner, renderVisitor, unsubToken, type MailCtx, type 
 import { ownerRecipients, sendMail } from '@/lib/ps/notify';
 import { createEnquiry } from '@/lib/ps/crm';
 import { alertEnquiry } from '@/lib/ps/enquiry';
+import { originFromTags, sourceLabel } from '@/lib/ps/origin';
 
 const INDUSTRIES = ['retail', 'education', 'healthcare', 'fintech', 'manufacturing', 'realestate', 'hospitality', 'professional', 'saas', 'agency', 'other'];
 
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
   }
   const answers = { ...d.answers, ...(d.channels.length ? { channels: d.channels } : {}) } as Answers;
   const industry = INDUSTRIES.includes(d.industry) ? d.industry : 'other';
-  await updateScan(id, { answers, industry, size: d.size, noOfficialEmail, company: d.company || rec.company, leadCaptured: true, expiresAt: new Date(Date.now() + retentionDays() * 86400_000).toISOString() });
+  await updateScan(id, { answers, industry, size: d.size, noOfficialEmail, company: d.company || rec.company, leadCaptured: true, origin: originFromTags(d.tags), expiresAt: new Date(Date.now() + retentionDays() * 86400_000).toISOString() });
   const rep = buildReport(rec.result ?? null, answers);
   const dp = summariseDpdp(rep.checks, { score: rep.headline, band: rep.band, mode: rec.result?.mode ?? 'questions', pages: rec.result?.pagesScanned ?? 0 });
   const priority = priorityOf(rep.headline, dp.exposure);
@@ -80,7 +81,7 @@ export async function POST(req: Request) {
     gaps: dp.exposure.gaps, top: rep.priorities.slice(0, 3).map((c) => ({ title: c.title, fix: c.fix })), reportUrl, bookingUrl: booking, retentionDays: retentionDays(),
     unsubUrl: `${PS_SITE}/api/ps/unsubscribe?e=${encodeURIComponent(d.email)}&t=${unsubToken(d.email)}`,
   };
-  const ownerLead: OwnerLead = { name: d.name, email: d.email, phone: d.phone, company: lead.company, website: lead.website, domain: lead.domain, industry, size: d.size, source: lead.lead_source, utm_source: lead.utm_source, utm_medium: lead.utm_medium, utm_campaign: lead.utm_campaign, utm_term: lead.utm_term, gclid: lead.gclid, landing_host: lead.landing_host, receivedAt: lead.receivedAt, no_official_email: noOfficialEmail, email_domain_matches_website: matches, no_website: d.noWebsite, priority };
+  const ownerLead: OwnerLead = { name: d.name, email: d.email, phone: d.phone, company: lead.company, website: lead.website, domain: lead.domain, industry, size: d.size, source: sourceLabel(originFromTags(d.tags), lead.lead_source), utm_source: lead.utm_source, utm_medium: lead.utm_medium, utm_campaign: lead.utm_campaign, utm_term: lead.utm_term, gclid: lead.gclid, landing_host: lead.landing_host, receivedAt: lead.receivedAt, no_official_email: noOfficialEmail, email_domain_matches_website: matches, no_website: d.noWebsite, priority };
 
   // Owner alert, visitor email and chat alert run together; a failure in one never blocks the others or the response.
   const owners = ownerRecipients();
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
     owners.length ? sendMail({ to: owners, mail: renderOwner(ownerLead, ctx), replyTo: d.email, kind: 'owner' }) : Promise.resolve('skipped' as const),
   ]);
   // CRM record + WhatsApp / SMS / chat alerts (type 1: someone scanned and gave details to see the result).
-  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: '', message: '', preferredTime: '', source: lead.lead_source || 'scan', utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
+  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: '', message: '', preferredTime: '', source: sourceLabel(originFromTags(d.tags), lead.lead_source || 'scan'), origin: originFromTags(d.tags), utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
   if (enq) await alertEnquiry(enq, { skipOwnerMail: true }).catch(() => null);
   const emailed = visitor.status === 'fulfilled' && (visitor.value === 'sent' || visitor.value === 'outbox');
   return NextResponse.json({ id, emailed, gated: noOfficialEmail, stored });

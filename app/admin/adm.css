@@ -188,3 +188,5 @@
   .adm-kpi b{font-size:1.6rem}.adm-dl{grid-template-columns:90px 1fr}
   .adm-bar .search{max-width:none}
 }
+
+.cms-root .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

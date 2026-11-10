@@ -2,6 +2,7 @@ import 'server-only';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
+import type { Origin } from '@/lib/ps/origin';
 
 /**
  * The Privacy Saathi CRM. One file per enquiry (atomic writes) under <data dir>/crm.
@@ -18,6 +19,7 @@ export interface Enquiry {
   score: number | null; band: string; priority: 'hot' | 'warm'; exposureCr: number; gaps: number;
   topic: string; message: string; preferredTime: string; source: string; utm: string;
   notes: { at: string; text: string }[];
+  origin?: Origin; // where the visitor came from, collected silently
   alerts: Record<string, string>; // channel -> sent | failed | skipped | outbox
 }
 

@@ -90,6 +90,10 @@ export default async function AdminHome() {
             </div>
           </div>
           <div className="adm-card">
+            <div className="adm-card-h"><h2>Where leads come from</h2></div>
+            {d.sources.length ? <div className="adm-funnel">{d.sources.map((x) => <div key={x.label} style={{ display: 'grid', gridTemplateColumns: '120px 1fr 34px', alignItems: 'center', gap: 10, fontSize: '.88rem' }}><span style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{x.label}</span><div><b style={{ width: `${(x.count / d.sources[0].count) * 100}%` }} /></div><em>{x.count}</em></div>)}</div> : <div className="adm-sub">Appears once leads arrive.</div>}
+          </div>
+          <div className="adm-card">
             <div className="adm-card-h"><h2><ScanSearch size={16} aria-hidden style={{ verticalAlign: '-3px' }} /> Scans</h2><Link href="/qwedsa/scans" className="adm-sub">Open →</Link></div>
             <div className="adm-health">
               <div><span>Total scans</span><b>{d.scans.total}</b></div>

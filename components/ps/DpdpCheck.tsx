@@ -153,7 +153,7 @@ export default function DpdpCheck() {
     const free = !!emailProblem(lead.email) && !/valid email/i.test(emailProblem(lead.email) ?? '');
     const r = await fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       scanId: id, name: lead.name, email: lead.email, phone: lead.phone, website: mode === 'site' ? domain : '', noWebsite: mode === 'nosite', company, industry: industry || 'other',
-      officialEmail: free ? 'no' : 'yes', answers: ans, consent: true, authorised: true, hp: lead.hp, tags: { ...captureTags(), lead_source: 'dpdp_check' },
+      officialEmail: free ? 'no' : 'yes', answers: ans, consent: true, authorised: true, hp: lead.hp, tags: { ...captureTags(), form_page: location.pathname, lead_source: 'dpdp_check' },
     }) }).catch(() => null);
     const j = r ? await r.json().catch(() => ({})) : {};
     if (!r || !r.ok) { setLbusy(false); setLerr({ form: j.error ?? 'Something went wrong. Please try again.' }); return; }

@@ -4,11 +4,12 @@ import path from 'node:path';
 import { randomBytes, createHash } from 'node:crypto';
 import type { ScanResult } from '@/lib/scan/types';
 import type { Answers } from '@/lib/scan/score';
+import type { Origin } from '@/lib/ps/origin';
 
 export interface ScanRecord {
   id: string; domain: string; url: string; deep: boolean; status: 'running' | 'done' | 'error';
   step: string; pct: number; createdAt: string; expiresAt: string; ipHash: string; error?: string;
-  result?: ScanResult; answers?: Answers; noOfficialEmail?: boolean; company?: string; leadCaptured?: boolean; industry?: string; size?: string; websiteless?: boolean;
+  result?: ScanResult; answers?: Answers; noOfficialEmail?: boolean; company?: string; leadCaptured?: boolean; industry?: string; size?: string; websiteless?: boolean; origin?: Origin;
 }
 
 /** Repository layer. Today: JSON files on disk (PS_DATA_DIR). Swap this file for Postgres or SQLite later. */

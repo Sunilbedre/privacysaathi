@@ -150,7 +150,7 @@ export default function ScanFlow() {
     const answers = { ...rest, data, children: data && (data as string[]).includes('children') ? 'yes' : rest.children };
     const r = await fetch('/api/ps/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({
       path, scanId: scanId ?? undefined, name: f.name, email: f.email, phone: f.phone, website: noSite ? '' : f.website, noWebsite: noSite, company: f.company, industry: f.industry || 'other', size: f.size,
-      officialEmail: noOfficial ? 'no' : 'yes', channels: channels ?? [], answers, consent: f.consent, authorised: f.authorised, hp: f.hp, tags: captureTags(),
+      officialEmail: noOfficial ? 'no' : 'yes', channels: channels ?? [], answers, consent: f.consent, authorised: f.authorised, hp: f.hp, tags: { ...captureTags(), form_page: location.pathname },
     }) }).catch(() => null);
     const j = r ? await r.json().catch(() => ({})) : {};
     setBusy(false);

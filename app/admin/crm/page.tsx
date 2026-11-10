@@ -3,6 +3,7 @@ import { Download, Mail, MessageCircle, Phone, X, ExternalLink } from 'lucide-re
 import { getEnquiry, listEnquiries, STATUSES, type Enquiry } from '@/lib/ps/crm';
 import { filterEnquiries } from '@/lib/ps/admin-stats';
 import { crore } from '@/lib/ps/dpdp-map';
+import { landingPath, referrerHost, sourceLabel } from '@/lib/ps/origin';
 import Shell from '../Shell';
 import { updateEnquiryAction } from '../actions';
 
@@ -44,9 +45,18 @@ function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
           : (<><dt>Wants help with</dt><dd>{e.topic || '-'}</dd></>)}
         {e.message && <><dt>Message</dt><dd>{e.message}</dd></>}
         {e.preferredTime && <><dt>Best time</dt><dd>{e.preferredTime}</dd></>}
-        <dt>Source</dt><dd>{e.source || '-'}{e.utm ? ` · ${e.utm}` : ''}</dd>
         <dt>Received</dt><dd>{when(e.createdAt)}</dd>
         <dt>Reference</dt><dd><code>{e.id}</code></dd>
+      </dl>
+      <div className="adm-h3">Where they came from</div>
+      <dl className="adm-dl">
+        <dt>Source</dt><dd><b>{sourceLabel(e.origin, e.source)}</b></dd>
+        {e.origin?.landingUrl && <><dt>Landing page</dt><dd><a href={e.origin.landingUrl} target="_blank" rel="noopener" style={{ color: 'var(--a)', textDecoration: 'underline' }}>{landingPath(e.origin) || e.origin.landingUrl}</a><small className="adm-sub" style={{ display: 'block' }}>{e.origin.host}</small></dd></>}
+        {e.origin?.referrer ? <><dt>Came from</dt><dd><a href={e.origin.referrer} target="_blank" rel="noopener" style={{ color: 'var(--a)', textDecoration: 'underline' }}>{referrerHost(e.origin) || e.origin.referrer}</a></dd></> : <><dt>Came from</dt><dd>Typed the address or used a bookmark</dd></>}
+        {(e.origin?.utm_campaign || e.origin?.utm_source || e.utm) && <><dt>Campaign</dt><dd>{[e.origin?.utm_source, e.origin?.utm_medium, e.origin?.utm_campaign].filter(Boolean).join(' / ') || e.utm}{e.origin?.utm_term ? <small className="adm-sub" style={{ display: 'block' }}>Keyword: {e.origin.utm_term}</small> : null}</dd></>}
+        {(e.origin?.gclid || e.origin?.fbclid) && <><dt>Ad click</dt><dd>{e.origin?.gclid ? 'Google Ads click id recorded' : 'Meta Ads click id recorded'}</dd></>}
+        {e.origin?.formPage && <><dt>Form on page</dt><dd>{e.origin.formPage}</dd></>}
+        {(e.origin?.device || e.origin?.lang) && <><dt>Device</dt><dd>{[e.origin?.device, e.origin?.lang].filter(Boolean).join(' · ')}</dd></>}
       </dl>
       {e.scanId && <p style={{ marginBottom: 14 }}><Link href={`/ps/report/${e.scanId}`} target="_blank" className="adm-btn ghost sm"><ExternalLink size={14} aria-hidden /> Open their report</Link></p>}
 
@@ -102,7 +112,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
         <div className="adm-board">
           {STATUSES.map((s) => { const col = shown.filter((e) => e.status === s); return (
             <section key={s} className="adm-col"><h3>{s}<span>{col.length}</span></h3>
-              {col.map((e) => <Link key={e.id} href={href(sp, { e: e.id })} className="adm-cardlet"><b>{e.name}</b><small>{e.company || e.website || e.phone}</small><span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span>{e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}{e.score != null && <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span>}</span></Link>)}
+              {col.map((e) => <Link key={e.id} href={href(sp, { e: e.id })} className="adm-cardlet"><b>{e.name}</b><small>{e.company || e.website || e.phone}</small><small>via {sourceLabel(e.origin, e.source)}</small><span style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span>{e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}{e.score != null && <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span>}</span></Link>)}
             </section>); })}
         </div>
       ) : null}
@@ -112,15 +122,17 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
           <div style={{ display: 'grid', gap: 14, minWidth: 0 }}>
             <div className="adm-tablewrap">
               <table className="adm-table">
-                <thead><tr><th>Received</th><th>Name</th><th>Type</th><th>Result / wants</th><th>Stage</th></tr></thead>
+                <thead><tr><th>Received</th><th>Name</th><th>Type</th><th>Came from</th><th>Result / wants</th><th>Stage</th><th><span className="sr-only">Details</span></th></tr></thead>
                 <tbody>
                   {shown.map((e) => (
                     <tr key={e.id} className={e.id === sp.e ? 'sel' : undefined}>
                       <td className="adm-cell"><Link className="row" href={href(sp, { e: e.id })}>{short(e.createdAt)}</Link></td>
-                      <td className="adm-cell"><b>{e.name}</b> {e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}<small>{e.company || e.website || e.phone}</small></td>
+                      <td className="adm-cell"><Link className="row" href={href(sp, { e: e.id })}>{e.name}</Link> {e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}<small>{e.company || e.website || e.phone}</small></td>
                       <td><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span></td>
+                      <td className="adm-cell">{sourceLabel(e.origin, e.source)}{e.origin?.landingUrl ? <small>{landingPath(e.origin)}</small> : null}</td>
                       <td className="adm-cell">{e.type === 'solution' ? e.topic || '-' : e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'}{e.type === 'scan' && e.exposureCr ? <small>up to {crore(e.exposureCr)}</small> : null}</td>
                       <td><span className={`adm-badge ${e.status}`}>{e.status}</span></td>
+                      <td><Link className="adm-btn ghost sm" href={href(sp, { e: e.id })}>View</Link></td>
                     </tr>))}
                 </tbody>
               </table>
