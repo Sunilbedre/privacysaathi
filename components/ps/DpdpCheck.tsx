@@ -69,7 +69,35 @@ export default function DpdpCheck() {
   }, [tsKey, phase, mode]);
   useEffect(() => { if (phase === 'results') top.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, [phase]);
 
-  const reset = () => { setPhase('start'); setSum(null); setId(null); setDetails(null); setPct(0); setErr(''); setAns({}); };
+  const [hydrated, setHydrated] = useState(false);
+  // Session: remember the visitor's check on this device, so a refresh, a tab switch or coming back later picks up where they were.
+  useEffect(() => {
+    let sv: { id?: string; mode?: 'site' | 'nosite'; domain?: string; industry?: string } | null = null, ct: { name?: string; phone?: string; email?: string; site?: string; company?: string } | null = null;
+    try { sv = JSON.parse(localStorage.getItem('ps-dc-session') || 'null'); ct = JSON.parse(localStorage.getItem('ps-dc-contact') || 'null'); } catch { /* storage unavailable */ }
+    if (ct) { setLead((l) => ({ ...l, name: ct.name ?? '', phone: ct.phone ?? '', email: ct.email ?? '' })); if (ct.site) setSite(ct.site); if (ct.company) setCompany(ct.company); }
+    setHydrated(true);
+    if (!sv?.id) return;
+    const sid = sv.id;
+    (async () => {
+      const gone = () => { try { localStorage.removeItem('ps-dc-session'); } catch { /* ignore */ } };
+      const full = await fetch(`/api/ps/scan/${sid}?full=1`, { cache: 'no-store' }).catch(() => null);
+      const fj = full && full.ok ? await full.json().catch(() => null) : null;
+      if (!alive.current) return;
+      setMode(sv.mode === 'nosite' ? 'nosite' : 'site'); setDomain(sv.domain ?? ''); setIndustry(sv.industry ?? ''); setId(sid);
+      if (fj?.dpdp) { setSum(fj.dpdp); setDetails(fj.details ?? []); setPhase('results'); return; }
+      const r = await fetch(`/api/ps/scan/${sid}?d=1`, { cache: 'no-store' }).catch(() => null);
+      const p = r && r.ok ? await r.json().catch(() => null) : null;
+      if (!alive.current) return;
+      if (!p || p.status === 'error') { gone(); setId(null); return; }
+      if (p.status === 'done') { setPhase('gate'); return; }
+      setPct(p.pct ?? 0); setPhase('scanning'); poll(sid);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => { if (hydrated && id) try { localStorage.setItem('ps-dc-session', JSON.stringify({ id, mode, domain, industry })); } catch { /* ignore */ } }, [hydrated, id, mode, domain, industry]);
+  useEffect(() => { if (hydrated) try { localStorage.setItem('ps-dc-contact', JSON.stringify({ name: lead.name, phone: lead.phone, email: lead.email, site, company })); } catch { /* ignore */ } }, [hydrated, lead.name, lead.phone, lead.email, site, company]);
+
+  const reset = () => { try { localStorage.removeItem('ps-dc-session'); } catch { /* ignore */ } setPhase('start'); setSum(null); setId(null); setDetails(null); setPct(0); setErr(''); setAns({}); };
 
   async function runScan(e: React.FormEvent) {
     e.preventDefault();
@@ -80,9 +108,13 @@ export default function DpdpCheck() {
     const j = r ? await r.json().catch(() => ({})) : {};
     if (!r || !r.ok) { setErr(j.error ?? 'Could not start the check. Please try again.'); setPhase('start'); return; }
     setId(j.id);
+    await poll(j.id);
+  }
+
+  async function poll(sid: string) {
     for (let i = 0; i < 70 && alive.current; i++) {
       await new Promise((ok) => setTimeout(ok, 900));
-      const p = await fetch(`/api/ps/scan/${j.id}?d=1`, { cache: 'no-store' }).then((x) => x.json()).catch(() => null);
+      const p = await fetch(`/api/ps/scan/${sid}?d=1`, { cache: 'no-store' }).then((x) => x.json()).catch(() => null);
       if (!p) continue;
       setPct(p.pct ?? 0);
       if (p.status === 'error') { setErr(p.error ?? 'We could not check that website.'); setPhase('start'); return; }

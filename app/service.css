@@ -2644,3 +2644,14 @@
 .ps-sm-enq textarea,.ps-sm-enq select{width:100%;border:1px solid var(--p-line);border-radius:10px;padding:10px 12px;font:inherit;background:var(--p-card);color:var(--p-ink)}
 .ps-sm-done{display:flex;gap:12px;align-items:flex-start;border:1px solid #BFE3CD;background:#E7F6EE;color:#14663A;border-radius:12px;padding:14px 16px;margin-top:18px}
 .ps-sm-done div{display:grid;gap:2px}.ps-sm-done span{font-size:.9rem;color:#1F4D33}
+
+/* Phones and tablets: heading, then the scan form, then the explanation and facts. */
+@media (max-width:1040px){
+  .ps-dc .ps-ch-grid{display:flex;flex-direction:column;gap:18px;align-items:stretch}
+  .ps-dc .ps-ch-grid>div:first-child{display:contents}
+  .ps-dc .ps-ch-grid .ps-rh-pill{order:0;align-self:flex-start}
+  .ps-dc .ps-ch-grid h1{order:1;margin:0}
+  .ps-dc .ps-ch-grid .ps-dc-card{order:2;width:100%}
+  .ps-dc .ps-ch-grid .ps-ch-lead{order:3;margin-top:6px}
+  .ps-dc .ps-ch-grid .ps-dc-facts{order:4;margin-top:6px}
+}
