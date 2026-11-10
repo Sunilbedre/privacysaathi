@@ -1,0 +1,524 @@
+.cms-root {
+  min-height: 100vh;
+  background: #f0f2f8;
+  color: #111634;
+  font-family: var(--font-inter, system-ui, sans-serif);
+}
+
+.cms-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 22px;
+  background: #111634;
+  color: #fff;
+}
+
+.cms-top b {
+  font-size: 1rem;
+}
+
+.cms-top nav {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.cms-top a {
+  color: #b9c4ff;
+}
+
+.cms-shell {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: calc(100vh - 52px);
+}
+
+.cms-side {
+  background: #fff;
+  border-right: 1px solid #d6dcef;
+  padding: 18px 14px;
+}
+
+.cms-side h2 {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5a6283;
+}
+
+.cms-side ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.cms-side a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  color: #111634;
+}
+
+.cms-side a.on,
+.cms-side a:hover {
+  background: #eef2fb;
+}
+
+.cms-side .soon {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.cms-main {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+}
+
+.cms-card {
+  background: #fff;
+  border: 1px solid #d6dcef;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 24px rgba(10, 20, 60, 0.06);
+}
+
+.cms-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 42%);
+  gap: 18px;
+  align-items: start;
+}
+
+.cms-fields {
+  display: grid;
+  gap: 16px;
+}
+
+.cms-group h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.cms-group p.desc {
+  margin: 0 0 14px;
+  color: #5a6283;
+  font-size: 0.86rem;
+}
+
+.cms-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.cms-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111634;
+}
+
+.cms-field input,
+.cms-field textarea,
+.cms-field select {
+  width: 100%;
+  border: 1px solid #d6dcef;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 0.92rem;
+  background: #fff;
+}
+
+.cms-field textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.cms-field small {
+  color: #5a6283;
+  font-size: 0.78rem;
+}
+
+.cms-preview {
+  position: sticky;
+  top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.cms-preview iframe {
+  width: 100%;
+  height: min(72vh, 720px);
+  border: 1px solid #d6dcef;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.cms-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.cms-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 99px;
+  border: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  background: #0064e0;
+  color: #fff;
+}
+
+.cms-btn.secondary {
+  background: #eef2fb;
+  color: #111634;
+}
+
+.cms-login {
+  max-width: 400px;
+  margin: 80px auto;
+}
+
+.cms-msg {
+  font-size: 0.88rem;
+  color: #0a7a43;
+}
+
+.cms-err {
+  color: #c62828;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 1100px) {
+  .cms-editor {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cms-preview iframe {
+    height: 480px;
+  }
+
+  .cms-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* —— Elementor-style visual builder —— */
+.el-main-full {
+  padding: 0 !important;
+  max-width: none;
+}
+
+.el-builder {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 0px);
+  background: #e8ebf4;
+}
+
+.el-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  background: #111634;
+  color: #fff;
+  border-bottom: 1px solid #272d5e;
+}
+
+.el-bar-title {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.el-bar-title b {
+  font-size: 0.95rem;
+}
+
+.el-bar-title span {
+  font-size: 0.78rem;
+  color: #a3aad3;
+}
+
+.el-back {
+  color: #9dbbff !important;
+  font-size: 0.82rem;
+  margin-right: 4px;
+}
+
+.el-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.el-workspace {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 320px;
+  flex: 1;
+  min-height: 0;
+  height: calc(100vh - 52px);
+}
+
+.el-panel {
+  background: #fff;
+  border-right: 1px solid #d6dcef;
+  overflow: auto;
+  padding: 14px 12px;
+}
+
+.el-inspector {
+  border-right: 0;
+  border-left: 1px solid #d6dcef;
+}
+
+.el-panel h2 {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #5a6283;
+}
+
+.el-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #5a6283;
+  line-height: 1.45;
+}
+
+.el-structure {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.el-structure button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+  color: #111634;
+}
+
+.el-structure button.on,
+.el-structure button:hover {
+  background: #eef2fb;
+  color: #0064e0;
+}
+
+.el-canvas-wrap {
+  background: #c8cede;
+  padding: 16px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
+  gap: 8px;
+}
+
+.el-canvas-loading {
+  display: grid;
+  place-items: center;
+  color: #5a6283;
+  font-size: 0.9rem;
+}
+
+.el-canvas-url {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #5a6283;
+  text-align: center;
+  word-break: break-all;
+}
+
+.el-canvas-url a {
+  color: #0064e0;
+}
+
+.el-link-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: inherit;
+  color: #0064e0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.el-canvas {
+  width: 100%;
+  max-width: 1280px;
+  height: 100%;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(10, 20, 60, 0.22);
+  background: #fff;
+}
+
+.el-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 14px;
+  background: #eef2fb;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.el-tabs button {
+  border: 0;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #5a6283;
+}
+
+.el-tabs button.on {
+  background: #fff;
+  color: #0064e0;
+  box-shadow: 0 2px 8px rgba(10, 20, 60, 0.08);
+}
+
+.el-inspector-head b {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.el-inspector-head p {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+  color: #5a6283;
+}
+
+.el-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.el-field label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #111634;
+}
+
+.el-field input,
+.el-field textarea,
+.el-field select {
+  width: 100%;
+  border: 1px solid #d6dcef;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.el-field textarea {
+  min-height: 72px;
+}
+
+.el-field small {
+  display: block;
+  margin-top: 4px;
+  color: #5a6283;
+  font-size: 0.74rem;
+}
+
+.el-color-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.el-color-row input[type='color'] {
+  width: 44px;
+  height: 36px;
+  padding: 2px;
+  flex: none;
+}
+
+.el-align {
+  display: flex;
+  gap: 6px;
+}
+
+.el-align button {
+  width: 40px;
+  height: 36px;
+  border: 1px solid #d6dcef;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.el-align button.on {
+  background: #0064e0;
+  border-color: #0064e0;
+  color: #fff;
+}
+
+.el-range {
+  width: 100%;
+}
+
+.el-range-val {
+  font-weight: 600;
+  color: #0064e0 !important;
+}
+
+@media (max-width: 1100px) {
+  .el-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+
+  .el-elements,
+  .el-inspector {
+    max-height: 280px;
+  }
+
+  .el-canvas {
+    min-height: 420px;
+  }
+}
+.cms-ok{color:#16a34a;font-weight:600}

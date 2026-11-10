@@ -1,0 +1,16 @@
+/* Responsive fixes. Kept in its own file so edits to service.css by other work cannot overwrite them. Loaded after service.css. */
+
+/* Header: switch to the menu button earlier, so the nav and the Sign in / Contact buttons never overflow between 1000px and 1180px. */
+@media (max-width:1180px){
+  .nav,.top .btn{display:none}.burger{display:inline-grid}.mega{display:none!important}
+}
+
+/* Home service filter pills: one line only on wide screens, wrap below that. */
+@media (max-width:1239px){.hm-flt-bar{flex-wrap:wrap!important}}
+
+/* DPDP guide and ad landing page: single column must be able to shrink, so very narrow phones (320px) do not scroll sideways. */
+@media (max-width:860px){
+  .dp-hero-grid,.dp-check-grid,.dp-faq,.lp-hero-grid,.lp-final-grid,.lp-faq{grid-template-columns:minmax(0,1fr)}
+}
+.dp-hero-btns .btn,.lp-hero .btn{white-space:normal;text-align:center}
+.dp-hero p,.lp-sub{overflow-wrap:anywhere}
