@@ -1,6 +1,7 @@
 import { Inbox, BellRing, ScanSearch } from 'lucide-react';
 import { cmsEnabled } from '@/lib/cms/auth';
 import { loginAction } from '../actions';
+import ThemeToggle from '@/components/ps/ThemeToggle';
 
 export default async function AdminLoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const sp = await searchParams;
@@ -18,6 +19,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
         </ul>
       </section>
       <section className="adm-login-form">
+        <ThemeToggle className="adm-theme float" label />
         <div className="adm-login-box">
           <img className="adm-login-logo" src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={220} height={54} />
           <h1>Sign in</h1>
