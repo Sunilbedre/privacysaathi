@@ -2674,3 +2674,13 @@
 .ps-foot .ps-by{display:none}
 :root[data-theme="dark"] .ps-top .ps-brand .ps-logo{background:#fff;border-radius:10px;padding:4px 10px;box-sizing:content-box}
 @media (max-width:760px){.ps-top-in{height:68px}.ps-brand .ps-logo{height:46px}.ps-foot .ps-brand .ps-logo{height:54px}}
+
+/* Brand header: indigo strip on top, soft brand-tinted bar for the logo (the logo needs a light ground) */
+.ps .ps-top0{background:linear-gradient(90deg,#0B1024 0%,#25257F 55%,#4F4FD9 100%);color:#D9DCFF;border-bottom:0}
+.ps .ps-top0 a{color:#fff;font-weight:600}
+.ps .ps-top{background:linear-gradient(100deg,rgba(232,235,255,.96),rgba(243,236,255,.96) 55%,rgba(236,245,255,.96));border-bottom:1px solid rgba(79,79,217,.2);backdrop-filter:saturate(1.6) blur(14px)}
+.ps .ps-top.is-s{box-shadow:0 10px 30px -18px rgba(37,37,127,.45)}
+.ps .ps-top .ps-nav a:not(.ps-btn){color:#1B2150}
+.ps .ps-top .ps-nav a:not(.ps-btn):hover,.ps .ps-top .ps-nav a[aria-current="page"]{color:#4F4FD9}
+:root[data-theme="dark"] .ps .ps-top{background:rgba(11,16,36,.94);border-bottom-color:rgba(255,255,255,.08)}
+:root[data-theme="dark"] .ps .ps-top .ps-nav a:not(.ps-btn){color:#E6E8FF}
