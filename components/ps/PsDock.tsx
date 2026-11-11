@@ -1,7 +1,9 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { ScanSearch, X } from 'lucide-react';
+import { usePsBase } from './PsCtx';
 import { track } from './PsTrack';
 import './psbot.css';
 
@@ -10,21 +12,25 @@ const get = (k: string) => { try { return sessionStorage.getItem(k); } catch { r
 const set = (k: string, v: string) => { try { sessionStorage.setItem(k, v); } catch { /* ignore */ } };
 
 /**
- * One floating button on every page that opens the DPDP chat and leads the visitor into the scan.
+ * One floating button, shown on the DPDP page only, that opens the DPDP chat and leads the visitor into the scan.
  * WhatsApp and Call live inside the chat header (shown only when their numbers are set in the admin). Other buttons can open the chat with data-ps-bot or window event "ps:bot".
  */
 export default function PsDock({ whatsapp, call, booking }: { whatsapp?: string; call?: string; booking: string }) {
+  const base = usePsBase(), path = usePathname() ?? '';
+  const rel = path.startsWith(base) ? path.slice(base.length) || '/' : path;
+  const on = rel === '/dpdp' || rel.startsWith('/dpdp/'); // the chat lives on the DPDP page only
   const [open, setOpen] = useState(false), [teaser, setTeaser] = useState(false);
   const show = useCallback(() => { setOpen(true); setTeaser(false); set('ps-teaser', '1'); }, []);
   useEffect(() => {
+    if (!on) { setOpen(false); setTeaser(false); return; }
     const onClick = (e: MouseEvent) => { const el = (e.target as HTMLElement | null)?.closest('[data-ps-bot]'); if (el) { e.preventDefault(); show(); } };
     document.addEventListener('click', onClick); window.addEventListener('ps:bot', show);
     if (new URLSearchParams(location.search).get('chat') === '1') show();
     const t = setTimeout(() => { if (!get('ps-teaser') && !document.querySelector('.psb-panel')) setTeaser(true); }, 12_000);
     return () => { document.removeEventListener('click', onClick); window.removeEventListener('ps:bot', show); clearTimeout(t); };
-  }, [show]);
+  }, [show, on]);
 
-
+  if (!on) return null;
   return (
     <>
       {teaser && !open && (
