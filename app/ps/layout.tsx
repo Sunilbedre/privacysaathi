@@ -6,6 +6,8 @@ import PsTrack from '@/components/ps/PsTrack';
 import PsHeader from '@/components/ps/PsHeader';
 import PsPopup from '@/components/ps/PsPopup';
 import PsDock from '@/components/ps/PsDock';
+import TopTicker from '@/components/ps/TopTicker';
+import { dpdpDeadline } from '@/content/dpdp';
 import { getSetting } from '@/lib/settings';
 import Logo from '@/components/ps/Logo';
 import { ArrowUpRight } from 'lucide-react';
@@ -36,7 +38,7 @@ export default async function PsLayout({ children }: { children: React.ReactNode
   return (
     <PsBase value={base}>
       <div className={`ps ${mona.variable} ${geist.variable} ${geistMono.variable}`}>
-        <div className="ps-top0"><div className="ps-wrap ps-top0-in"><span>100% free scan · Read-only · Bengaluru, India</span><span>A service of Bedre Web Technologies · <a href="https://bedreweb.com/contact" rel="noopener">Talk to Bedre</a></span></div></div>
+        <div className="ps-top0"><div className="ps-wrap ps-top0-in"><TopTicker days={Math.max(0, Math.ceil((Date.parse(dpdpDeadline + 'T00:00:00+05:30') - Date.now()) / 86400000))} /><span>A service of Bedre Web Technologies · <a href="https://bedreweb.com/contact" rel="noopener">Talk to Bedre</a></span></div></div>
         <PsHeader />
         <main id="ps-main" tabIndex={-1}>{children}</main>
         <footer className="ps-foot">

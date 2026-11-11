@@ -2714,3 +2714,16 @@
 :root[data-theme="dark"] .ps-brand .ps-logo-d{display:block}
 .ps-foot .ps-brand .ps-logo-l{display:none}
 .ps-foot .ps-brand .ps-logo-d{display:block;width:270px;height:auto}
+
+/* Top strip: rotating catchy line */
+.ps-top0-in{align-items:center}
+.ps-tick{position:relative;flex:1;min-width:0;height:22px;overflow:hidden}
+.ps-tick-i{position:absolute;left:0;top:0;right:0;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff !important;font-weight:600;opacity:0;transform:translateY(100%);transition:opacity .45s ease,transform .45s ease;text-decoration:none}
+.ps-tick-i.on{opacity:1;transform:none}
+.ps-tick-i b{color:#9FC4FF;font-weight:700}
+.ps-tick-i .ts{display:none}
+.ps-tick-i:hover{text-decoration:underline}
+.ps-tick-dots{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;gap:4px;background:linear-gradient(90deg,transparent,rgba(0,16,40,.55) 40%);padding-left:18px}
+.ps-tick-dots i{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.35)}.ps-tick-dots i.on{background:#fff}
+@media (max-width:760px){.ps-tick-i .tl{display:none}.ps-tick-i .ts{display:inline}.ps-top0-in>span{display:none}.ps-tick-dots{display:none}.ps-tick{height:20px}}
+@media (prefers-reduced-motion:reduce){.ps-tick-i{transition:none}}
