@@ -1,5 +1,5 @@
 /* Privacy Saathi admin. Light workspace, dark sidebar. All classes are prefixed adm-. */
-.cms-root{--a:#5B5BF0;--a2:#4545D6;--ink:#10132B;--mut:#667091;--line:#E3E7F3;--bg:#F4F6FC;--card:#fff;--ok:#12805C;--okb:#E2F6EE;--warn:#9A5B00;--warnb:#FFF1D6;--bad:#B42318;--badb:#FDE7E5;--info:#2A4BD7;--infob:#E6ECFF;
+.cms-root{--a:#2F6BF2;--a2:#1F55D6;--ink:#10132B;--mut:#667091;--line:#E3E7F3;--bg:#F4F6FC;--card:#fff;--ok:#12805C;--okb:#E2F6EE;--warn:#9A5B00;--warnb:#FFF1D6;--bad:#B42318;--badb:#FDE7E5;--info:#2A4BD7;--infob:#E6ECFF;
   min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font-inter,system-ui,sans-serif);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
 .cms-root *{box-sizing:border-box}
 .cms-root a{color:inherit;text-decoration:none}
@@ -7,7 +7,7 @@
 
 /* Shell */
 .adm{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
-.adm-side{background:#0D0F26;color:#B8BEDC;padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.adm-side{background:#061230;color:#B8BEDC;padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
 .adm-brand{display:flex;align-items:center;gap:10px;padding:4px 8px;color:#fff!important}
 .adm-brand span{display:grid;place-items:center}
 .adm-brand b{font-size:.98rem;letter-spacing:-.01em;white-space:nowrap}
@@ -15,7 +15,7 @@
 .adm-side nav{display:grid;gap:4px}
 .adm-side nav a,.adm-side-foot a,.adm-side-foot button{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;color:#B8BEDC;font-weight:600;font-size:.92rem;background:none;border:0;width:100%;cursor:pointer;font-family:inherit;text-align:left}
 .adm-side nav a:hover,.adm-side-foot a:hover,.adm-side-foot button:hover{background:rgba(255,255,255,.07);color:#fff}
-.adm-side nav a.on{background:rgba(109,109,255,.2);color:#fff;box-shadow:inset 3px 0 0 #7C7CFF}
+.adm-side nav a.on{background:rgba(109,109,255,.2);color:#fff;box-shadow:inset 3px 0 0 #8E5CFF}
 .adm-side-foot{margin-top:auto;display:grid;gap:4px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px}
 .adm-main{min-width:0}
 .adm-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:28px 32px 6px}
@@ -155,7 +155,7 @@
 
 /* Login */
 .adm-login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
-.adm-login-art{background:radial-gradient(900px 500px at 20% 10%,#3A3AC0,transparent 60%),#0D0F26;color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between}
+.adm-login-art{background:radial-gradient(900px 500px at 20% 10%,#1F5BE6,transparent 60%),#061230;color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between}
 .adm-login-art h2{font-size:2.1rem;letter-spacing:-.03em;line-height:1.15;max-width:15ch}
 .adm-login-art p{color:#AEB5DA;max-width:42ch;margin-top:14px}
 .adm-login-art ul{list-style:none;padding:0;margin:0;display:grid;gap:12px;color:#CBD0EC}
@@ -195,3 +195,6 @@
 .adm-brand span{background:none !important;width:auto !important;height:auto !important;border-radius:0 !important}
 .adm-brand span img{display:block;width:40px;height:40px}
 .adm-login-logo{display:block;width:290px;max-width:100%;height:auto;margin-bottom:26px}
+
+.adm-btn:not(.ghost):not(.danger){background:linear-gradient(135deg,#0A74EE,#7828F0);border-color:transparent}.adm-btn:not(.ghost):not(.danger):hover{filter:brightness(1.08);background:linear-gradient(135deg,#0A74EE,#7828F0)}
+.adm-login-art{background:radial-gradient(900px 500px at 20% 10%,rgba(40,100,240,.75),transparent 60%),radial-gradient(700px 400px at 100% 100%,rgba(120,40,240,.55),transparent 60%),#061230 !important}

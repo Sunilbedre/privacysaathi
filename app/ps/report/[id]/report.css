@@ -1,5 +1,5 @@
 /* Client report. A self-contained light "document", the same in every site theme, and print-ready. Prefix rp-. */
-.rp{--ink:#0E1230;--mut:#5C6485;--line:#E4E8F3;--paper:#fff;--bg:#F3F5FB;--brand:#4F4FD9;--brand2:#7C7CFF;--navy:#0B1024;
+.rp{--ink:#0E1230;--mut:#5C6485;--line:#E4E8F3;--paper:#fff;--bg:#F3F5FB;--brand:#2F6BF2;--brand2:#8E5CFF;--navy:#061230;
   --good:#0F8A5F;--goodb:#E2F6EE;--mid:#2B5BD7;--midb:#E6EDFF;--warn:#A25D00;--warnb:#FFF1D6;--bad:#C0262D;--badb:#FDE8E9;
   color-scheme:light;background:var(--bg);color:var(--ink);font-family:var(--ps-body),var(--font-inter),system-ui,sans-serif;font-size:16px;line-height:1.6;padding:28px 0 64px;-webkit-font-smoothing:antialiased}
 .rp *{box-sizing:border-box}
@@ -19,7 +19,7 @@
 .rp-u{text-decoration:underline}
 
 /* Cover */
-.rp-cover{background:radial-gradient(900px 420px at 85% -10%,rgba(124,124,255,.55),transparent 60%),radial-gradient(600px 300px at -5% 110%,rgba(79,79,217,.5),transparent 60%),var(--navy);color:#fff;border-radius:22px;padding:30px 34px 34px;box-shadow:0 24px 60px -28px rgba(11,16,36,.7);overflow:hidden;position:relative}
+.rp-cover{background:radial-gradient(900px 420px at 85% -10%,rgba(120,40,240,.55),transparent 60%),radial-gradient(600px 300px at -5% 110%,rgba(47,107,242,.5),transparent 60%),var(--navy);color:#fff;border-radius:22px;padding:30px 34px 34px;box-shadow:0 24px 60px -28px rgba(11,16,36,.7);overflow:hidden;position:relative}
 .rp-cover-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:22px;border-bottom:1px solid rgba(255,255,255,.14)}
 .rp-logo{display:inline-flex;align-items:center;gap:8px;font-weight:700;letter-spacing:-.01em}
 .rp-logo img{width:auto;height:58px;display:block;background:#fff;border-radius:12px;padding:6px 12px;box-sizing:content-box}
@@ -142,7 +142,7 @@
 .rp-nc li{display:flex;gap:10px;align-items:flex-start;color:#2D3556;font-size:.95rem}.rp-nc svg{color:#8A93B2;flex:none;margin-top:4px}
 
 /* CTA */
-.rp-cta{background:radial-gradient(700px 300px at 90% 0,rgba(124,124,255,.5),transparent 60%),var(--navy);color:#fff;border-radius:22px;padding:28px 32px;display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.rp-cta{background:radial-gradient(700px 300px at 90% 0,rgba(120,40,240,.5),transparent 60%),var(--navy);color:#fff;border-radius:22px;padding:28px 32px;display:flex;gap:22px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .rp-cta-l{display:flex;gap:16px;align-items:flex-start;flex:1;min-width:260px}
 .rp-cta-i{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex:none}
 .rp-cta h2{font-size:1.45rem;color:#fff}.rp-cta p{color:rgba(255,255,255,.78);margin-top:6px;max-width:56ch}

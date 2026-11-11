@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { PsLink, usePsBase } from './PsCtx';
 import { usePathname } from 'next/navigation';
 import Logo from './Logo';
+import ThemeToggle from './ThemeToggle';
 
 const NAV: [string, string][] = [['/cybersecurity', 'Cyber security'], ['/maintenance', 'Website care'], ['/dpdp', 'DPDP'], ['/resources', 'Resources']];
 
@@ -21,6 +22,7 @@ export default function PsHeader() {
           {NAV.map(([h, l]) => <PsLink key={h} href={h} aria-current={rel === h ? 'page' : undefined}>{l}</PsLink>)}
           <PsLink href="/scan" className="ps-btn ps-btn-sm">Scan free</PsLink>
         </nav>
+        <ThemeToggle />
         <button type="button" className="ps-burger" aria-label={open ? 'Close menu' : 'Open menu'} aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? <X size={22} /> : <Menu size={22} />}</button>
       </div>
       {open && <nav className="ps-drawer" aria-label="Mobile">{NAV.map(([h, l]) => <PsLink key={h} href={h}>{l}</PsLink>)}<PsLink href="/sign-in">Client sign in</PsLink><PsLink href="/scan" className="ps-btn">Scan your website free</PsLink></nav>}
