@@ -221,3 +221,6 @@
 :root[data-theme="dark"] .adm-time li:before{border-color:var(--card)}
 :root[data-theme="dark"] .adm-chips a.on,:root[data-theme="dark"] .adm-seg a.on{background:#2F6BF2;border-color:#2F6BF2;color:#fff}
 :root[data-theme="dark"] .adm-area-h,:root[data-theme="dark"] .adm-col{background:var(--soft)}
+
+.adm-lg-d{display:none}
+:root[data-theme="dark"] .adm-lg-l{display:none}:root[data-theme="dark"] .adm-lg-d{display:block}

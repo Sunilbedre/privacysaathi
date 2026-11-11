@@ -2670,10 +2670,8 @@
 .ps-top-in{height:84px}
 .ps-brand .ps-logo{height:60px;width:auto;display:block}
 .ps-brand .ps-logo-mark{display:block}
-.ps-foot .ps-brand .ps-logo{height:64px;background:#fff;border-radius:12px;padding:8px 14px;box-sizing:content-box}
 .ps-foot .ps-by{display:none}
-:root[data-theme="dark"] .ps-top .ps-brand .ps-logo{background:#fff;border-radius:10px;padding:4px 10px;box-sizing:content-box}
-@media (max-width:760px){.ps-top-in{height:68px}.ps-brand .ps-logo{height:46px}.ps-foot .ps-brand .ps-logo{height:54px}}
+@media (max-width:760px){.ps-top-in{height:68px}.ps-brand .ps-logo-l{height:46px}.ps-brand .ps-logo-d{width:192px}.ps-foot .ps-brand .ps-logo-d{width:210px}}
 
 /* Brand header: indigo strip on top, soft brand-tinted bar for the logo (the logo needs a light ground) */
 .ps .ps-top0{background:linear-gradient(90deg,#001028 0%,#0A3D9C 48%,#7828F0 100%);color:#DCE6FF;border-bottom:0}
@@ -2709,3 +2707,10 @@
 :root[data-theme="dark"] .ps-theme{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#EAF0FF}
 :root[data-theme="dark"] .ps-theme .t-sun{display:block}:root[data-theme="dark"] .ps-theme .t-moon{display:none}
 .ps-top-r{display:flex;align-items:center;gap:10px}
+
+/* Logo versions: light-background art by default, dark-background art in dark mode and in the (always dark) footer */
+.ps-brand .ps-logo-d{display:none;height:auto;width:248px}
+:root[data-theme="dark"] .ps-brand .ps-logo-l{display:none}
+:root[data-theme="dark"] .ps-brand .ps-logo-d{display:block}
+.ps-foot .ps-brand .ps-logo-l{display:none}
+.ps-foot .ps-brand .ps-logo-d{display:block;width:270px;height:auto}

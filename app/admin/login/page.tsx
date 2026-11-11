@@ -21,7 +21,8 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
       <section className="adm-login-form">
         <ThemeToggle className="adm-theme float" label />
         <div className="adm-login-box">
-          <img className="adm-login-logo" src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={220} height={54} />
+          <img className="adm-login-logo adm-lg-l" src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={290} height={71} />
+          <img className="adm-login-logo adm-lg-d" src="/brand/privacy-saathi-logo-dark-sm.png" alt="" aria-hidden="true" width={290} height={93} />
           <h1>Sign in</h1>
           <p>Admin access for the Privacy Saathi team.</p>
           {!enabled ? (
