@@ -58,3 +58,31 @@ export async function patchEnquiry(id: string, patch: { status?: EnquiryStatus; 
   e.updatedAt = new Date().toISOString();
   await write(e); return e;
 }
+
+/** Fields an admin may change by hand. Everything else (id, dates, alerts, origin, notes) stays as recorded. */
+export type EnquiryFields = Partial<Pick<Enquiry, 'type' | 'name' | 'phone' | 'email' | 'company' | 'website' | 'topic' | 'message' | 'preferredTime' | 'priority' | 'source' | 'status'>>;
+const cut = (v: unknown, n: number) => String(v ?? '').replace(/[\u0000-\u001f]+/g, ' ').trim().slice(0, n);
+
+export async function updateEnquiryFields(id: string, f: EnquiryFields): Promise<Enquiry | null> {
+  const e = await getEnquiry(id); if (!e) return null;
+  if (f.type === 'scan' || f.type === 'solution') e.type = f.type;
+  if (f.name !== undefined) e.name = cut(f.name, 120);
+  if (f.phone !== undefined) e.phone = cut(f.phone, 30);
+  if (f.email !== undefined) e.email = cut(f.email, 200).toLowerCase();
+  if (f.company !== undefined) e.company = cut(f.company, 150);
+  if (f.website !== undefined) e.website = cut(f.website, 300);
+  if (f.topic !== undefined) e.topic = cut(f.topic, 160);
+  if (f.message !== undefined) e.message = String(f.message).trim().slice(0, 900);
+  if (f.preferredTime !== undefined) e.preferredTime = cut(f.preferredTime, 60);
+  if (f.priority === 'hot' || f.priority === 'warm') e.priority = f.priority;
+  if (f.source !== undefined) e.source = cut(f.source, 80);
+  if (f.status && (STATUSES as readonly string[]).includes(f.status)) e.status = f.status;
+  e.updatedAt = new Date().toISOString();
+  await write(e); return e;
+}
+
+/** Permanently removes one enquiry. The scan report it came from is not touched. */
+export async function deleteEnquiry(id: string): Promise<boolean> {
+  if (!ok(id)) return false;
+  try { await fs.rm(f(id)); return true; } catch { return false; }
+}

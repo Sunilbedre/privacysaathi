@@ -224,3 +224,13 @@
 
 .adm-lg-d{display:none}
 :root[data-theme="dark"] .adm-lg-l{display:none}:root[data-theme="dark"] .adm-lg-d{display:block}
+
+/* CRM: add / edit form and bulk actions */
+.adm-form{display:grid;gap:0}
+.adm-two-f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.adm-two-f .adm-field{min-width:0}
+.adm-bulk{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.adm-bulk select{width:auto;min-width:150px;min-height:34px;padding:4px 10px}
+.adm-table input[type=checkbox]{width:17px;height:17px;accent-color:var(--a);cursor:pointer}
+.adm-d-top form,.adm-testrow form{display:inline}
+@media (max-width:520px){.adm-two-f{grid-template-columns:1fr}}

@@ -2742,3 +2742,21 @@
 :root[data-theme="dark"] .ps-askai-pill{color:#B9C4FF}
 @media (max-width:760px){.ps-askai{padding:26px 0 34px}.ps-askai-card{padding:22px 18px;gap:20px}.ps-askai h2{font-size:1.3rem}.ps-askai-b{flex:1 1 calc(50% - 10px);justify-content:center;padding:0 12px}}
 @media print{.ps-askai{display:none}}
+
+/* Outlined and line buttons keep their own colours (the brand gradient rule above must not turn their text white) */
+.ps .ps-btn.ps-btn-ghost{background:transparent;color:var(--p-ink) !important;border:1.5px solid color-mix(in srgb,var(--p-teal) 50%,var(--p-line));box-shadow:none}
+.ps .ps-btn.ps-btn-ghost:hover{background:color-mix(in srgb,var(--p-teal) 10%,transparent);border-color:var(--p-teal);filter:none}
+.ps .ps-btn.ps-btn-line{background:transparent;color:#fff !important;border:1.5px solid rgba(255,255,255,.55);box-shadow:none}
+.ps .ps-btn.ps-btn-line:hover{background:rgba(255,255,255,.12);filter:none}
+:root[data-theme="dark"] .ps .ps-btn.ps-btn-ghost{background:transparent;color:#EAF0FF !important;border:1.5px solid rgba(143,180,255,.45);box-shadow:none}
+:root[data-theme="dark"] .ps .ps-btn.ps-btn-ghost:hover{background:rgba(143,180,255,.12)}
+:root[data-theme="dark"] .ps .ps-btn.ps-btn-line{background:transparent;color:#fff !important;border:1.5px solid rgba(255,255,255,.5);box-shadow:none}
+
+/* Mobile sticky bar on the home page: brand-tinted, two clear buttons */
+@media (max-width:760px){
+  .ps .ps-sticky{display:flex;gap:10px;background:linear-gradient(100deg,rgba(228,239,255,.97),rgba(240,232,255,.97));border-top:1px solid rgba(10,116,238,.25);box-shadow:0 -12px 30px -18px rgba(37,37,127,.5)}
+  .ps .ps-sticky .ps-btn{flex:1;width:auto;min-height:50px;font-size:.98rem}
+  .ps .ps-sticky .ps-btn.ps-btn-ghost{background:#fff;color:#001028 !important;border:1.5px solid rgba(10,116,238,.45)}
+  :root[data-theme="dark"] .ps .ps-sticky{background:rgba(6,18,48,.96);border-top-color:rgba(255,255,255,.12)}
+  :root[data-theme="dark"] .ps .ps-sticky .ps-btn.ps-btn-ghost{background:transparent;color:#EAF0FF !important;border-color:rgba(143,180,255,.5)}
+}
