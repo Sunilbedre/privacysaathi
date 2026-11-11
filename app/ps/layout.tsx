@@ -7,6 +7,7 @@ import PsHeader from '@/components/ps/PsHeader';
 import PsPopup from '@/components/ps/PsPopup';
 import PsDock from '@/components/ps/PsDock';
 import TopTicker from '@/components/ps/TopTicker';
+import AskAi from '@/components/ps/AskAi';
 import { dpdpDeadline } from '@/content/dpdp';
 import { getSetting } from '@/lib/settings';
 import Logo from '@/components/ps/Logo';
@@ -41,6 +42,7 @@ export default async function PsLayout({ children }: { children: React.ReactNode
         <div className="ps-top0"><div className="ps-wrap ps-top0-in"><TopTicker days={Math.max(0, Math.ceil((Date.parse(dpdpDeadline + 'T00:00:00+05:30') - Date.now()) / 86400000))} /><span>A service of Bedre Web Technologies · <a href="https://bedreweb.com/contact" rel="noopener">Talk to Bedre</a></span></div></div>
         <PsHeader />
         <main id="ps-main" tabIndex={-1}>{children}</main>
+        <AskAi />
         <footer className="ps-foot">
           <div className="ps-wrap">
             <div className="ps-foot-top">

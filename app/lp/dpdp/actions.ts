@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { z } from 'zod';
 import { CONSENT_TEXT, saveLead, sendToVisitor } from '@/lib/leads';
 import { emailDomain, emailProblem, parseWebsite, phoneProblem, sameCompany } from '@/lib/lead-rules';
+import { checkToken, otpEnabled } from '@/lib/ps/otp';
 
 export interface LpState { ok: boolean; message?: string; errors?: Record<string, string>; values?: Record<string, string> }
 
@@ -42,6 +43,7 @@ export async function submitDpdpLead(_prev: LpState, form: FormData): Promise<Lp
   if (ep) errors.email = ep;
   const pp = phoneProblem(values.phone);
   if (pp) errors.phone = pp;
+  if (!pp && otpEnabled() && !checkToken(String(form.get('otpToken') ?? ''), values.phone)) errors.phone = 'Please verify your mobile number with the WhatsApp code';
   if (!values.website.trim()) errors.website = 'Please enter your company website';
   else if (!site) errors.website = 'Please enter a valid website, for example yourcompany.com';
   if (Object.keys(errors).length || !parsed.success || !site) return { ok: false, errors, values };

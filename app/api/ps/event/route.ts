@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { appendLine } from '@/lib/ps/store';
 import { ipLimited } from '@/lib/ps/guard';
 
-const EVENTS = ['visit', 'scan_started', 'scan_completed', 'report_viewed', 'generate_lead', 'booking_clicked', 'email_help_clicked', 'dpdp_check_started', 'dpdp_report_unlocked', 'popup_shown', 'popup_lead', 'report_printed', 'dpdp_solution_enquiry', 'dock_whatsapp', 'dock_call', 'dock_scan', 'bot_opened', 'bot_started', 'bot_completed', 'bot_expert_requested'] as const;
+const EVENTS = ['visit', 'scan_started', 'scan_completed', 'report_viewed', 'generate_lead', 'booking_clicked', 'email_help_clicked', 'dpdp_check_started', 'dpdp_report_unlocked', 'popup_shown', 'popup_lead', 'report_printed', 'dpdp_solution_enquiry', 'dock_whatsapp', 'dock_call', 'dock_scan', 'bot_opened', 'bot_started', 'bot_completed', 'bot_expert_requested', 'ask_ai'] as const;
 const schema = z.object({ event: z.enum(EVENTS), tags: z.record(z.string(), z.string().max(300)).optional(), path: z.string().max(200).optional(), sid: z.string().max(40).optional() });
 
 export async function POST(req: Request) {

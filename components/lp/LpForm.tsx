@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowRight, Check, Globe2, Lock } from 'lucide-react';
 import { submitDpdpLead, type LpState } from '@/app/lp/dpdp/actions';
 import { emailDomain, emailProblem, parseWebsite, phoneProblem, sameCompany } from '@/lib/lead-rules';
+import { useOtp } from '@/components/ps/useOtp';
 
 const init: LpState = { ok: false };
 const TRACK = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid'] as const;
@@ -21,6 +22,8 @@ export default function LpForm({ thanksHref, id = 'lead-form' }: { thanksHref: s
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [track, setTrack] = useState<Record<string, string>>({});
   const fired = useRef(false);
+  const otp = useOtp(phone);
+  const [otpErr, setOtpErr] = useState('');
   const e = state.errors ?? {};
   const v = state.values ?? {};
 
@@ -50,10 +53,11 @@ export default function LpForm({ thanksHref, id = 'lead-form' }: { thanksHref: s
   const err = (k: string, local?: string | null) => { const m = e[k] || local; return m ? <span role="alert" className="ct-err">{m}</span> : null; };
 
   return (
-    <form id={id} className="lp-form" action={action} noValidate>
+    <form id={id} className="lp-form" action={action} noValidate onSubmit={(ev) => { const m = otp.check(); if (m) { ev.preventDefault(); setOtpErr(m); } else setOtpErr(''); }}>
       <div className="lp-form-h"><b>Get your free DPDP readiness review</b><span>Takes 30 seconds. No payment.</span></div>
       {TRACK.map((k) => <input key={k} type="hidden" name={k} value={track[k] ?? ''} />)}
       <input type="hidden" name="ref" value={track.ref ?? ''} />
+      <input type="hidden" name="otpToken" value={otp.token} />
       <input type="text" name="website_confirm" tabIndex={-1} autoComplete="off" aria-hidden="true" className="lp-hp" />
 
       <label className="f">Your name
@@ -72,6 +76,8 @@ export default function LpForm({ thanksHref, id = 'lead-form' }: { thanksHref: s
         <input type="tel" name="phone" value={phone} onChange={(x) => setPhone(x.target.value)} onBlur={() => setTouched((t) => ({ ...t, phone: true }))} autoComplete="tel" placeholder="+91 98765 43210" required aria-invalid={!!(e.phone || phoneMsg)} inputMode="tel" />
         {err('phone', phoneMsg)}
       </label>
+      {otp.node}
+      {otpErr && !otp.verified ? <span role="alert" className="ct-err">{otpErr}</span> : null}
       <label className="ct-consent">
         <input type="checkbox" name="consent" checked={consent} onChange={(x) => setConsent(x.target.checked)} aria-invalid={!!e.consent} />
         <span>I agree that Bedre may contact me about this request. See the <a className="lnk" href="/privacy" target="_blank">privacy notice</a>.</span>
