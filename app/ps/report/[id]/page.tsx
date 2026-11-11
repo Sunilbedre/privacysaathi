@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { ArrowRight, CalendarClock, CircleAlert, CircleCheck, CircleHelp, ShieldAlert, ShieldCheck, TriangleAlert } from 'lucide-react';
+import { ArrowRight, CalendarClock, CircleAlert, CircleCheck, CircleHelp, ShieldAlert, TriangleAlert } from 'lucide-react';
 import { PsLink } from '@/components/ps/PsCtx';
 import { BookBtn, PrintBtn, ReportTrack } from '@/components/ps/ReportActions';
 import { getScan } from '@/lib/ps/store';
@@ -68,7 +68,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
         {/* Cover */}
         <header className="rp-cover">
-          <div className="rp-cover-top"><span className="rp-logo"><ShieldCheck size={16} aria-hidden /> Privacy Saathi</span><span className="rp-tag">DPDP &amp; cyber readiness report</span></div>
+          <div className="rp-cover-top"><span className="rp-logo"><img src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={170} height={42} /></span><span className="rp-tag">DPDP &amp; cyber readiness report</span></div>
           <div className="rp-cover-body">
             <div className="rp-cover-l">
               <p className="rp-eyebrow">Prepared for</p>

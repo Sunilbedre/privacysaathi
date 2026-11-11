@@ -7,7 +7,7 @@ import PsHeader from '@/components/ps/PsHeader';
 import PsPopup from '@/components/ps/PsPopup';
 import PsDock from '@/components/ps/PsDock';
 import { getSetting } from '@/lib/settings';
-import Mark from '@/components/ps/Mark';
+import Logo from '@/components/ps/Logo';
 import { ArrowUpRight } from 'lucide-react';
 import { services } from '@/content';
 import { serviceHref } from '@/lib/catalog';
@@ -43,7 +43,7 @@ export default async function PsLayout({ children }: { children: React.ReactNode
           <div className="ps-wrap">
             <div className="ps-foot-top">
               <div className="ps-foot-brand">
-                <PsLink href="/" className="ps-brand" aria-label="Privacy Saathi home"><Mark /><b>Privacy Saathi</b><span>by Bedre</span></PsLink>
+                <PsLink href="/" className="ps-brand" aria-label="Privacy Saathi home"><Logo height={46} /><span className="ps-by">by Bedre</span></PsLink>
                 <p>Cyber security, privacy compliance and website care from Bedre Web Technologies. We are a technology company, not a law firm, and not a government service.</p>
                 <a className="ps-foot-cta" href="https://bedreweb.com/contact" rel="noopener">Talk to Bedre <ArrowUpRight size={16} aria-hidden /></a>
               </div>

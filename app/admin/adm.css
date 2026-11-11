@@ -9,7 +9,7 @@
 .adm{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
 .adm-side{background:#0D0F26;color:#B8BEDC;padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
 .adm-brand{display:flex;align-items:center;gap:10px;padding:4px 8px;color:#fff!important}
-.adm-brand span{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6D6DFF,#4040C8);display:grid;place-items:center}
+.adm-brand span{display:grid;place-items:center}
 .adm-brand b{font-size:.98rem;letter-spacing:-.01em;white-space:nowrap}
 .adm-brand em{font-style:normal;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.12);padding:2px 7px;border-radius:999px;margin-left:auto;white-space:nowrap}
 .adm-side nav{display:grid;gap:4px}
@@ -190,3 +190,8 @@
 }
 
 .cms-root .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Logo */
+.adm-brand span{background:none !important;width:auto !important;height:auto !important;border-radius:0 !important}
+.adm-brand span img{display:block;width:32px;height:32px}
+.adm-login-logo{display:block;width:210px;height:auto;margin-bottom:26px}

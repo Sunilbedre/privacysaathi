@@ -2665,3 +2665,11 @@
 .ps-otp-btn:disabled{opacity:.6;cursor:wait}
 .ps-otp-link{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit;opacity:.85}.ps-otp-link:disabled{opacity:.5;cursor:default;text-decoration:none}
 .ps-otp-msg{color:inherit;opacity:.8;font-size:.82rem}
+
+/* Logo */
+.ps-brand .ps-logo{height:42px;width:auto;display:block}
+.ps-brand .ps-logo-mark{display:block}
+.ps-foot .ps-brand .ps-logo{height:46px;background:#fff;border-radius:12px;padding:8px 14px;box-sizing:content-box}
+.ps-foot .ps-by{display:none}
+:root[data-theme="dark"] .ps-top .ps-brand .ps-logo{background:#fff;border-radius:10px;padding:4px 10px;box-sizing:content-box}
+@media (max-width:760px){.ps-brand .ps-logo{height:34px}}

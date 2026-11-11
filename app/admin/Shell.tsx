@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Inbox, ScanSearch, Settings, LogOut, ExternalLink, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Inbox, ScanSearch, Settings, LogOut, ExternalLink } from 'lucide-react';
 import { cmsEnabled, isCmsAuthed } from '@/lib/cms/auth';
 import { logoutAction } from './actions';
 
@@ -18,7 +18,7 @@ export default async function Shell({ active, title, sub, actions, children }: {
   return (
     <div className="adm">
       <aside className="adm-side">
-        <Link href="/qwedsa" className="adm-brand"><span><ShieldCheck size={18} aria-hidden /></span><b>Privacy Saathi</b><em>Admin</em></Link>
+        <Link href="/qwedsa" className="adm-brand"><span><img src="/brand/privacy-saathi-mark-sm.png" alt="" width={30} height={30} /></span><b>Privacy Saathi</b><em>Admin</em></Link>
         <nav aria-label="Admin">
           {NAV.map(({ id, href, label, Icon }) => (
             <Link key={id} href={href} className={id === active ? 'on' : ''} aria-current={id === active ? 'page' : undefined}><Icon size={18} aria-hidden /><span>{label}</span></Link>

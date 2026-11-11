@@ -1,4 +1,4 @@
-import { ShieldCheck, Inbox, BellRing, ScanSearch } from 'lucide-react';
+import { Inbox, BellRing, ScanSearch } from 'lucide-react';
 import { cmsEnabled } from '@/lib/cms/auth';
 import { loginAction } from '../actions';
 
@@ -8,7 +8,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
   return (
     <div className="adm-login">
       <section className="adm-login-art">
-        <div className="adm-brand"><span><ShieldCheck size={18} aria-hidden /></span><b>Privacy Saathi</b></div>
+        <div className="adm-brand"><span><img src="/brand/privacy-saathi-mark-sm.png" alt="" width={30} height={30} /></span><b>Privacy Saathi</b></div>
         <div>
           <h2>Every lead, every alert, one place.</h2>
           <p>Follow up on scan and solution enquiries, check your alert channels and see how the scanner is performing.</p>
@@ -19,6 +19,7 @@ export default async function AdminLoginPage({ searchParams }: { searchParams: P
       </section>
       <section className="adm-login-form">
         <div className="adm-login-box">
+          <img className="adm-login-logo" src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={220} height={54} />
           <h1>Sign in</h1>
           <p>Admin access for the Privacy Saathi team.</p>
           {!enabled ? (

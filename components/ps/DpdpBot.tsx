@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRight, MessageCircle, RotateCcw, Send, ShieldCheck, X } from 'lucide-react';
+import { ArrowRight, MessageCircle, RotateCcw, Send, X } from 'lucide-react';
 import { emailProblem, parseWebsite, phoneProblem } from '@/lib/lead-rules';
 import { PS_CONSENT } from '@/lib/ps/config';
 import { crore, type DpdpSummary } from '@/lib/ps/dpdp-map';
@@ -8,6 +8,7 @@ import { captureTags, track } from './PsTrack';
 import { usePsBase } from './PsCtx';
 import { otpRequired, otpSend, otpVerify } from './otpClient';
 import { CHECK_STEPS, DATA, FIRST, INDUSTRIES, LEARN, NOTE, RECORDS, SIZES, STORAGE, TIMES, TOPICS, YN, YNU, YPN, days, learnAnswer, type Chip, type Flow } from './botFlow';
+import Logo from './Logo';
 import './psbot.css';
 
 interface Msg { id: number; from: 'bot' | 'me'; text: string }
@@ -224,7 +225,7 @@ export default function DpdpBot({ open, onClose, whatsapp, booking }: { open: bo
   return (
     <section className="psb-panel" role="dialog" aria-label="DPDP assistant chat" aria-modal="false">
       <header className="psb-head">
-        <span className="psb-av"><ShieldCheck size={20} aria-hidden /></span>
+        <span className="psb-av"><Logo variant="mark" height={30} className="psb-av-img" /></span>
         <div><b>Saathi</b><small><i aria-hidden /> DPDP assistant · replies instantly</small></div>
         <div className="psb-head-r"><button type="button" onClick={restart} aria-label="Start over" title="Start over"><RotateCcw size={16} aria-hidden /></button><button type="button" onClick={onClose} aria-label="Close chat"><X size={18} aria-hidden /></button></div>
         <div className="psb-prog" aria-hidden><i style={{ width: `${pct}%` }} /></div>
