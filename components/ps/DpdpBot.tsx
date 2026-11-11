@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowRight, MessageCircle, RotateCcw, Send, X } from 'lucide-react';
+import { ArrowRight, MessageCircle, Phone, RotateCcw, Send, X } from 'lucide-react';
 import { emailProblem, parseWebsite, phoneProblem } from '@/lib/lead-rules';
 import { PS_CONSENT } from '@/lib/ps/config';
 import { crore, type DpdpSummary } from '@/lib/ps/dpdp-map';
@@ -22,7 +22,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** What Saathi says at each step (lines) and what the visitor can do (chips, multi-select or typing). */
 const SAY: Record<string, (d: D) => string[]> = {
-  start: () => ['Namaste 👋 I’m Saathi, your DPDP Act assistant.', `The DPDP Act is now law and the main duties apply in about ${days()} days. I can check your business in about 2 minutes. What would you like to do?`],
+  start: () => ['Namaste 👋 I’m Saathi, your DPDP Act assistant.', `The DPDP Act is now law and the main duties apply in about ${days()} days. I can scan your business for free in about 2 minutes and show exactly what is missing. Shall we start?`],
   biz: (d) => [d.flow === 'expert' ? 'Happy to connect you with a Bedre consultant. What is your business name?' : 'Great, let’s begin. What is your business name?'],
   hasSite: (d) => [`Nice to meet ${d.biz}. Do you have a website?`],
   site: () => ['Type your website address, for example yourcompany.com. I will start reading its public pages while we chat.'],
@@ -50,7 +50,7 @@ const SAY: Record<string, (d: D) => string[]> = {
   done: (d) => [`All set. A Bedre consultant will contact you on ${d.phone}${d.time && d.time !== 'Any time' ? ` in the ${d.time.toLowerCase()}` : ''}.`, 'You can also message us on WhatsApp anytime.'],
 };
 const UI: Record<string, Ui> = {
-  start: { chips: [['check', 'Check my DPDP readiness'], ['learn', 'Understand the DPDP Act'], ['expert', 'Talk to an expert']] },
+  start: { chips: [['check', 'Start my free DPDP scan'], ['learn', 'Understand the DPDP Act'], ['expert', 'Talk to an expert']] },
   biz: { input: { type: 'text', ph: 'Your business name' } },
   hasSite: { chips: [['yes', 'Yes, I have one'], ['no', 'No website']] },
   site: { input: { type: 'url', ph: 'yourcompany.com' } },
@@ -64,7 +64,7 @@ const UI: Record<string, Ui> = {
 };
 const FLOW_STEPS: Record<Flow, readonly string[]> = { check: CHECK_STEPS, expert: ['biz', 'topic', 'time', 'name', 'phone', 'email', 'consent'], learn: [] };
 
-export default function DpdpBot({ open, onClose, whatsapp, booking }: { open: boolean; onClose: () => void; whatsapp?: string; booking: string }) {
+export default function DpdpBot({ open, onClose, whatsapp, call, booking }: { open: boolean; onClose: () => void; whatsapp?: string; call?: string; booking: string }) {
   const base = usePsBase();
   const [msgs, setMsgs] = useState<Msg[]>([]), [step, setStep] = useState('start'), [d, setD] = useState<D>({});
   const [typing, setTyping] = useState(false), [busy, setBusy] = useState(false), [text, setText] = useState(''), [sel, setSel] = useState<string[]>([]), [err, setErr] = useState('');
@@ -218,7 +218,8 @@ export default function DpdpBot({ open, onClose, whatsapp, booking }: { open: bo
   };
 
   const steps = FLOW_STEPS[flow]; const pos = steps.indexOf(step); const pct = flow === 'learn' || pos < 0 ? (step === 'after' || step === 'done' || step === 'end' ? 100 : 0) : Math.round(((pos + 1) / steps.length) * 100);
-  const waHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent('Hi, I just used the DPDP check on Privacy Saathi and have a question.')}` : '';
+  const waHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent('Hi, I would like help with DPDP compliance (from the Privacy Saathi website).')}` : '';
+  const telHref = call ? `tel:${call.replace(/[^\d+]/g, '')}` : '';
   const E = result?.sum.exposure;
 
   if (!open) return null;
@@ -227,7 +228,7 @@ export default function DpdpBot({ open, onClose, whatsapp, booking }: { open: bo
       <header className="psb-head">
         <span className="psb-av"><Logo variant="mark" height={30} className="psb-av-img" /></span>
         <div><b>Saathi</b><small><i aria-hidden /> DPDP assistant · replies instantly</small></div>
-        <div className="psb-head-r"><button type="button" onClick={restart} aria-label="Start over" title="Start over"><RotateCcw size={16} aria-hidden /></button><button type="button" onClick={onClose} aria-label="Close chat"><X size={18} aria-hidden /></button></div>
+        <div className="psb-head-r">{waHref && <a className="psb-ic wa" href={waHref} target="_blank" rel="noopener" aria-label="Chat on WhatsApp" title="WhatsApp" onClick={() => track('dock_whatsapp')}><MessageCircle size={16} aria-hidden /></a>}{telHref && <a className="psb-ic" href={telHref} aria-label="Call us" title="Call" onClick={() => track('dock_call')}><Phone size={16} aria-hidden /></a>}<button type="button" onClick={restart} aria-label="Start over" title="Start over"><RotateCcw size={16} aria-hidden /></button><button type="button" onClick={onClose} aria-label="Close chat"><X size={18} aria-hidden /></button></div>
         <div className="psb-prog" aria-hidden><i style={{ width: `${pct}%` }} /></div>
       </header>
 
@@ -249,7 +250,7 @@ export default function DpdpBot({ open, onClose, whatsapp, booking }: { open: bo
 
         {!typing && (ui || step === 'end' || step === 'done') && step !== 'typing' && step !== 'working' && (
           <div className="psb-ui">
-            {ui?.chips && <div className="psb-chips">{ui.chips.map(([v, l]) => <button key={v} type="button" className="psb-chip" disabled={busy} onClick={() => answer(v, l)}>{l}</button>)}</div>}
+            {ui?.chips && <div className="psb-chips">{ui.chips.map(([v, l]) => <button key={v} type="button" className={`psb-chip${step === 'start' && v === 'check' ? ' primary' : ''}`} disabled={busy} onClick={() => answer(v, l)}>{l}{step === 'start' && v === 'check' ? ' \u2192' : ''}</button>)}</div>}
             {ui?.multi && (<>
               <div className="psb-chips">{ui.multi.map(([v, l]) => <button key={v} type="button" aria-pressed={sel.includes(v)} className={`psb-chip${sel.includes(v) ? ' on' : ''}`} onClick={() => setSel((s) => (s.includes(v) ? s.filter((x) => x !== v) : [...s, v]))}>{sel.includes(v) ? '✓ ' : ''}{l}</button>)}</div>
               <button type="button" className="psb-btn psb-done" disabled={busy} onClick={() => answer(sel.join(','), sel.length ? ui!.multi!.filter(([v]) => sel.includes(v)).map(([, l]) => l).join(', ') : 'None of these')}>{sel.length ? `Continue (${sel.length})` : 'None of these'} <ArrowRight size={15} aria-hidden /></button>
