@@ -9,7 +9,7 @@ import { crore } from './dpdp-map';
 
 export const crmLink = (id: string) => `${(getSetting('CRM_BASE_URL') || process.env.NEXT_PUBLIC_SITE_URL || 'https://bedreweb.com').replace(/\/$/, '')}/qwedsa/crm?e=${id}`;
 const who = (e: Enquiry) => e.company || e.website || e.name;
-const gist = (e: Enquiry) => `score ${e.score ?? '-'}/100${e.exposureCr ? `, up to ${crore(e.exposureCr)}` : ''}`;
+const gist = (e: Enquiry) => (e.score == null ? e.topic || 'no scan yet' : `score ${e.score}/100${e.exposureCr ? `, up to ${crore(e.exposureCr)}` : ''}`);
 
 /** The exact message texts to register as templates (shown on the settings page). {{n}} are the variables we fill in. */
 export const WA_TEMPLATES = {
@@ -52,7 +52,7 @@ export function solutionVisitorMail(e: Enquiry): Mail {
  * Tells you about an enquiry on every channel you set up: WhatsApp, SMS, email and chat webhook. One failing channel never blocks the others.
  * `skipOwnerMail`: the scan route already sends its richer owner email.
  */
-export async function alertEnquiry(e: Enquiry, opts: { skipOwnerMail?: boolean; visitorMail?: Mail | null } = {}): Promise<Record<string, ChannelResult | string>> {
+export async function alertEnquiry(e: Enquiry, opts: { skipOwnerMail?: boolean; skipClient?: boolean; visitorMail?: Mail | null } = {}): Promise<Record<string, ChannelResult | string>> {
   const t = e.type === 'solution';
   const topic = t ? e.topic : gist(e);
   const owners = ownerRecipients();
@@ -65,10 +65,10 @@ export async function alertEnquiry(e: Enquiry, opts: { skipOwnerMail?: boolean; 
     postWebhook(`${t ? ':bulb: *SOLUTION enquiry*' : ':mag: *Scan enquiry*'}: ${who(e)} · ${e.name} · ${e.phone}${e.topic ? ` · ${e.topic}` : ''}\n${crmLink(e.id)}`),
     opts.visitorMail ? sendMail({ to: e.email, mail: opts.visitorMail, replyTo: owners[0], kind: 'visitor' }) : Promise.resolve('skipped' as const),
     // Confirmation to the visitor on their own phone. Off until switched on in Settings (templates must be approved first).
-    isOn('WA_CLIENT_SEND') && e.phone
+    isOn('WA_CLIENT_SEND') && e.phone && !opts.skipClient
       ? sendWhatsApp(getSetting(t ? 'WA_TEMPLATE_CLIENT_SOLUTION' : 'WA_TEMPLATE_CLIENT_SCAN'), t ? [first, e.topic || 'DPDP readiness', e.phone, e.id] : [first, who(e), gist(e).split(',')[0], reportUrl], [e.phone])
       : Promise.resolve('skipped' as const),
-    isOn('SMS_CLIENT_SEND') && e.phone
+    isOn('SMS_CLIENT_SEND') && e.phone && !opts.skipClient
       ? sendSms(fillSms(SMS_CLIENT_TEMPLATES[t ? 'solution' : 'scan'], t ? [first, e.topic || 'DPDP readiness', e.id] : [first, reportUrl]), [e.phone])
       : Promise.resolve('skipped' as const),
   ]);

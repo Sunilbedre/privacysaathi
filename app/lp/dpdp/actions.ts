@@ -4,6 +4,9 @@ import { z } from 'zod';
 import { CONSENT_TEXT, saveLead, sendToVisitor } from '@/lib/leads';
 import { emailDomain, emailProblem, parseWebsite, phoneProblem, sameCompany } from '@/lib/lead-rules';
 import { checkToken, otpEnabled } from '@/lib/ps/otp';
+import { createEnquiry } from '@/lib/ps/crm';
+import { alertEnquiry } from '@/lib/ps/enquiry';
+import { originFromTags, sourceLabel } from '@/lib/ps/origin';
 
 export interface LpState { ok: boolean; message?: string; errors?: Record<string, string>; values?: Record<string, string> }
 
@@ -17,6 +20,7 @@ const schema = z.object({
   utm_source: z.string().max(100).optional().default(''), utm_medium: z.string().max(100).optional().default(''),
   utm_campaign: z.string().max(150).optional().default(''), utm_term: z.string().max(150).optional().default(''),
   utm_content: z.string().max(150).optional().default(''), gclid: z.string().max(200).optional().default(''), ref: z.string().max(300).optional().default(''),
+  landing_url: z.string().max(300).optional().default(''), device: z.string().max(20).optional().default(''), lang: z.string().max(12).optional().default(''),
 });
 
 const hits = new Map<string, number[]>();
@@ -61,8 +65,17 @@ export async function submitDpdpLead(_prev: LpState, form: FormData): Promise<Lp
   const stored = await saveLead({
     name: d.name, email, organisation: site.domain, interest: 'DPDP readiness (ad lead)', message,
     receivedAt: new Date().toISOString(), consentText: CONSENT_TEXT, ip,
-  });
+  }, { skipEmail: true });
   if (!stored) return { ok: false, message: 'We could not record your request right now. Please try again in a moment.', values };
+  // Same CRM record, source tracking and WhatsApp / SMS / email alerts as every other enquiry.
+  try {
+    const h = await headers(), host = h.get('x-forwarded-host') ?? h.get('host') ?? '';
+    const origin = originFromTags({ landing_url: d.landing_url, ref: d.ref, form_page: '/lp/dpdp', device: d.device, lang: d.lang, landing_host: host, utm_source: d.utm_source, utm_medium: d.utm_medium, utm_campaign: d.utm_campaign, utm_term: d.utm_term, utm_content: d.utm_content, gclid: d.gclid });
+    const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email, company: '', website: site.domain, scanId: '', score: null, band: '', priority: 'warm', exposureCr: 0, gaps: 0,
+      topic: 'Ad landing page: free review request', message: `Asked for a free DPDP readiness review. Email domain matches website: ${match ? 'yes' : 'NO, check before calling'}.`, preferredTime: '',
+      source: sourceLabel(origin, 'Ad landing page'), utm: [d.utm_source, d.utm_medium, d.utm_campaign].filter(Boolean).join(' / '), origin, phoneVerified: otpEnabled() });
+    await alertEnquiry(enq, { skipClient: true });
+  } catch (e) { console.error('lp crm failed', (e as Error).message); }
   void sendToVisitor(email, 'We received your DPDP readiness request', `Hi ${d.name.split(' ')[0]},\n\nThanks for asking for a DPDP readiness review of ${site.domain}. A Bedre consultant will reply within one working day with a few questions and a time to talk.\n\nBedre Web Technologies\n`);
   return { ok: true };
 }

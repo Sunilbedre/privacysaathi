@@ -43,6 +43,7 @@ function Detail({ e, sp }: { e: Enquiry; sp: SP }) {
         <dt>Website</dt><dd>{e.website || 'No website'}</dd>
         {e.type === 'scan' ? (<><dt>Result</dt><dd>{e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'} {e.band}{e.exposureCr ? ` · up to ${crore(e.exposureCr)} fine exposure` : ''}{e.gaps ? ` · ${e.gaps} gaps` : ''}</dd></>)
           : (<><dt>Wants help with</dt><dd>{e.topic || '-'}</dd></>)}
+        {e.type === 'scan' && e.topic && <><dt>Request</dt><dd>{e.topic}</dd></>}
         {e.message && <><dt>Message</dt><dd>{e.message}</dd></>}
         {e.preferredTime && <><dt>Best time</dt><dd>{e.preferredTime}</dd></>}
         <dt>Received</dt><dd>{when(e.createdAt)}</dd>
@@ -130,7 +131,7 @@ export default async function CrmPage({ searchParams }: { searchParams: Promise<
                       <td className="adm-cell"><Link className="row" href={href(sp, { e: e.id })}>{e.name}</Link> {e.priority === 'hot' && <span className="adm-badge hot">Hot</span>}<small>{e.company || e.website || e.phone}</small></td>
                       <td><span className={`adm-badge ${e.type}`}>{e.type === 'solution' ? 'Solution' : 'Scan'}</span></td>
                       <td className="adm-cell">{sourceLabel(e.origin, e.source)}{e.origin?.landingUrl ? <small>{landingPath(e.origin)}</small> : null}</td>
-                      <td className="adm-cell">{e.type === 'solution' ? e.topic || '-' : e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'}{e.type === 'scan' && e.exposureCr ? <small>up to {crore(e.exposureCr)}</small> : null}</td>
+                      <td className="adm-cell">{e.type === 'solution' ? e.topic || '-' : e.score == null ? e.topic || '-' : e.score != null ? <span className={`adm-score ${scoreCls(e.score)}`}>{e.score}</span> : '-'}{e.type === 'scan' && e.exposureCr ? <small>up to {crore(e.exposureCr)}</small> : null}</td>
                       <td><span className={`adm-badge ${e.status}`}>{e.status}</span></td>
                       <td><Link className="adm-btn ghost sm" href={href(sp, { e: e.id })}>View</Link></td>
                     </tr>))}

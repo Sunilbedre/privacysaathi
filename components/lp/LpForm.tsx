@@ -29,7 +29,7 @@ export default function LpForm({ thanksHref, id = 'lead-form' }: { thanksHref: s
 
   useEffect(() => {
     const q = new URLSearchParams(location.search);
-    const t: Record<string, string> = { ref: document.referrer.slice(0, 300) };
+    const t: Record<string, string> = { ref: document.referrer.slice(0, 300), landing_url: location.href.split('#')[0].slice(0, 300), device: window.innerWidth < 640 ? 'Phone' : window.innerWidth < 1024 ? 'Tablet' : 'Desktop', lang: (navigator.language || '').slice(0, 12) };
     for (const k of TRACK) t[k] = q.get(k) ?? '';
     setTrack(t);
   }, []);
@@ -57,6 +57,7 @@ export default function LpForm({ thanksHref, id = 'lead-form' }: { thanksHref: s
       <div className="lp-form-h"><b>Get your free DPDP readiness review</b><span>Takes 30 seconds. No payment.</span></div>
       {TRACK.map((k) => <input key={k} type="hidden" name={k} value={track[k] ?? ''} />)}
       <input type="hidden" name="ref" value={track.ref ?? ''} />
+      <input type="hidden" name="landing_url" value={track.landing_url ?? ''} /><input type="hidden" name="device" value={track.device ?? ''} /><input type="hidden" name="lang" value={track.lang ?? ''} />
       <input type="hidden" name="otpToken" value={otp.token} />
       <input type="text" name="website_confirm" tabIndex={-1} autoComplete="off" aria-hidden="true" className="lp-hp" />
 
