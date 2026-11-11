@@ -37,7 +37,7 @@ export default function PsDock({ whatsapp, call, booking }: { whatsapp?: string;
       )}
       <nav className={`psd${open ? ' is-open' : ''}`} aria-label="Quick contact">
         {wa && <a className="psd-b wa" href={wa} target="_blank" rel="noopener" onClick={() => track('dock_whatsapp')}><MessageCircle size={20} aria-hidden /><span>WhatsApp</span></a>}
-        <button type="button" className="psd-b main" onClick={() => { track('dock_scan'); show(); }}><ScanSearch size={20} aria-hidden /><span><em className="psd-long">Free </em>DPDP check</span><i aria-hidden /></button>
+        <button type="button" className="psd-b main" title="Free DPDP check" onClick={() => { track('dock_scan'); show(); }}><ScanSearch size={20} aria-hidden /><span><em className="psd-long">Free </em>DPDP check</span><i aria-hidden /></button>
         {tel && <a className="psd-b call" href={tel} onClick={() => track('dock_call')}><Phone size={20} aria-hidden /><span>Call</span></a>}
       </nav>
       <Bot open={open} onClose={() => setOpen(false)} whatsapp={whatsapp?.replace(/\D/g, '')} booking={booking} />
