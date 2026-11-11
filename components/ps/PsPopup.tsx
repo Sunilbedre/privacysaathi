@@ -26,6 +26,7 @@ export default function PsPopup() {
 
   const show = useCallback((manual = false) => {
     if (fired.current && !manual) return;
+    if (!manual && document.querySelector('.psb-panel')) return;
     if (!manual && (get('ps-lead-done') && Date.now() - Number(get('ps-lead-done')) < 7 * DAY)) return;
     if (!manual && (get('ps-popup-closed') && Date.now() - Number(get('ps-popup-closed')) < 3 * DAY)) return;
     fired.current = true; opener.current = document.activeElement as HTMLElement; setOpen(true); track('popup_shown', { manual });

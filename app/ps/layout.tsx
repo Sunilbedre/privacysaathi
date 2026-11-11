@@ -5,6 +5,8 @@ import { PsBase, PsLink } from '@/components/ps/PsCtx';
 import PsTrack from '@/components/ps/PsTrack';
 import PsHeader from '@/components/ps/PsHeader';
 import PsPopup from '@/components/ps/PsPopup';
+import PsDock from '@/components/ps/PsDock';
+import { getSetting } from '@/lib/settings';
 import Mark from '@/components/ps/Mark';
 import { ArrowUpRight } from 'lucide-react';
 import { services } from '@/content';
@@ -62,6 +64,7 @@ export default async function PsLayout({ children }: { children: React.ReactNode
         </footer>
         <PsTrack />
         <PsPopup />
+        <PsDock whatsapp={(getSetting('PS_WHATSAPP_NUMBER') || process.env.NEXT_PUBLIC_WHATSAPP || '').replace(/\D/g, '') || undefined} call={getSetting('PS_CALL_NUMBER') || process.env.NEXT_PUBLIC_CALL_NUMBER || undefined} booking={process.env.NEXT_PUBLIC_BOOKING_URL || 'https://bedreweb.com/contact'} />
       </div>
     </PsBase>
   );

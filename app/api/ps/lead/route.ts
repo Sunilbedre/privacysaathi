@@ -24,7 +24,7 @@ const schema = z.object({
   industry: z.string().max(30).optional().default('other'), size: z.string().max(20).optional().default(''), officialEmail: z.enum(['yes', 'no']).optional().default('yes'),
   channels: z.array(z.string().max(40)).max(10).optional().default([]),
   answers: z.record(z.string(), z.unknown()).optional().default({}), consent: z.literal(true, { message: 'Please tick the consent box' }),
-  authorised: z.boolean().optional().default(false), otpToken: z.string().max(300).optional(), hp: z.string().max(0).optional(), tags: z.record(z.string(), z.string().max(300)).optional().default({}),
+  authorised: z.boolean().optional().default(false), otpToken: z.string().max(300).optional(), topic: z.string().trim().max(120).optional().default(''), message: z.string().trim().max(600).optional().default(''), hp: z.string().max(0).optional(), tags: z.record(z.string(), z.string().max(300)).optional().default({}),
 });
 
 export async function POST(req: Request) {
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
     owners.length ? sendMail({ to: owners, mail: renderOwner(ownerLead, ctx), replyTo: d.email, kind: 'owner' }) : Promise.resolve('skipped' as const),
   ]);
   // CRM record + WhatsApp / SMS / chat alerts (type 1: someone scanned and gave details to see the result).
-  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: '', message: '', preferredTime: '', source: sourceLabel(originFromTags(d.tags), lead.lead_source || 'scan'), origin: originFromTags(d.tags), phoneVerified: verified, utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
+  const enq = await createEnquiry({ type: 'scan', name: d.name, phone: d.phone, email: d.email, company: lead.company, website: lead.domain || lead.website, scanId: id, score: rep.headline, band: rep.band, priority, exposureCr: dp.exposure.maxCr, gaps: dp.exposure.gaps, topic: d.topic, message: d.message, preferredTime: d.tags.preferred_time ?? '', source: sourceLabel(originFromTags(d.tags), lead.lead_source || 'scan'), origin: originFromTags(d.tags), phoneVerified: verified, utm: [lead.utm_source, lead.utm_medium, lead.utm_campaign].filter(Boolean).join(' / ') }).catch(() => null);
   if (enq) await alertEnquiry(enq, { skipOwnerMail: true }).catch(() => null);
   const emailed = visitor.status === 'fulfilled' && (visitor.value === 'sent' || visitor.value === 'outbox');
   return NextResponse.json({ id, emailed, gated: noOfficialEmail, stored });
