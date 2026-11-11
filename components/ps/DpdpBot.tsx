@@ -57,7 +57,7 @@ const UI: Record<string, Ui> = {
   industry: { chips: INDUSTRIES }, size: { chips: SIZES }, data: { multi: DATA }, records: { chips: RECORDS }, storage: { chips: STORAGE },
   hasPolicy: { chips: YN }, consentRecords: { chips: YPN }, breachPlan: { chips: YPN }, requestOwner: { chips: YN }, training: { chips: YPN }, vendors: { chips: [['no', 'No'], ['yes', 'Yes'], ['unsure', 'Not sure']] },
   topic: { chips: TOPICS }, time: { chips: TIMES },
-  name: { input: { type: 'text', ph: 'Your name' } }, phone: { input: { type: 'tel', ph: '+91 98765 43210' } }, otp: { input: { type: 'code', ph: '6-digit code' }, chips: [['resend', 'Send a new code']] },
+  name: { input: { type: 'text', ph: 'Your name' } }, phone: { input: { type: 'tel', ph: '+91 98765 43210' } }, otp: { input: { type: 'code', ph: '6-digit code' }, chips: [['resend', 'Send a new code'], ['change', 'Use a different number']] },
   email: { input: { type: 'email', ph: 'you@company.com' } }, consent: { chips: [['yes', 'Yes, I agree'], ['no', 'Not now']] },
   after: { chips: [['yes', 'Yes, call me'], ['no', 'No, thanks']] },
   learn: { chips: LEARN }, learnMore: { chips: [['more', 'Another topic'], ['check', 'Check my readiness'], ['expert', 'Talk to an expert']] },
@@ -193,6 +193,7 @@ export default function DpdpBot({ open, onClose, whatsapp, call, booking }: { op
       case 'phone': f('phone', value); upd({ token: undefined }); await nextAfterPhone(); break;
       case 'otp':
         if (value === 'resend') { await sendCode(); break; }
+        if (value === 'change') { upd({ token: undefined, challenge: undefined }); await say(['No problem. Type the correct mobile number.']); await go('phone'); break; }
         { setBusy(true); const r = await otpVerify(dd.current.phone ?? '', dd.current.challenge ?? '', value); setBusy(false);
           if (!r.ok) { await say([r.error]); if (r.expired) await sendCode(); else setStep('otp'); break; }
           upd({ token: r.token }); await say(['✓ Number verified.']); await go('email'); }
