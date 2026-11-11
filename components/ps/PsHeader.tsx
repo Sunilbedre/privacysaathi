@@ -16,7 +16,7 @@ export default function PsHeader() {
   return (
     <header className={`ps-top${scrolled || open ? ' is-s' : ''}`}>
       <div className="ps-wrap ps-top-in">
-        <PsLink href="/" className="ps-brand" aria-label="Privacy Saathi home"><Logo height={42} /></PsLink>
+        <PsLink href="/" className="ps-brand" aria-label="Privacy Saathi home"><Logo height={60} /></PsLink>
         <nav className="ps-nav" aria-label="Main">
           {NAV.map(([h, l]) => <PsLink key={h} href={h} aria-current={rel === h ? 'page' : undefined}>{l}</PsLink>)}
           <PsLink href="/scan" className="ps-btn ps-btn-sm">Scan free</PsLink>

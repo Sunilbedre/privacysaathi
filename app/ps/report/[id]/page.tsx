@@ -68,7 +68,7 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
 
         {/* Cover */}
         <header className="rp-cover">
-          <div className="rp-cover-top"><span className="rp-logo"><img src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={170} height={42} /></span><span className="rp-tag">DPDP &amp; cyber readiness report</span></div>
+          <div className="rp-cover-top"><span className="rp-logo"><img src="/brand/privacy-saathi-logo-sm.png" alt="Privacy Saathi" width={236} height={58} /></span><span className="rp-tag">DPDP &amp; cyber readiness report</span></div>
           <div className="rp-cover-body">
             <div className="rp-cover-l">
               <p className="rp-eyebrow">Prepared for</p>

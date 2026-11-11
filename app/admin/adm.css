@@ -193,5 +193,5 @@
 
 /* Logo */
 .adm-brand span{background:none !important;width:auto !important;height:auto !important;border-radius:0 !important}
-.adm-brand span img{display:block;width:32px;height:32px}
-.adm-login-logo{display:block;width:210px;height:auto;margin-bottom:26px}
+.adm-brand span img{display:block;width:40px;height:40px}
+.adm-login-logo{display:block;width:290px;max-width:100%;height:auto;margin-bottom:26px}
