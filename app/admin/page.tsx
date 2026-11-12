@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, BellRing, Flame, Gauge, Inbox, ScanSearch, Trophy } from 'lucide-react';
 import { dashboard } from '@/lib/ps/admin-stats';
+import { visitorStats } from '@/lib/ps/visitors';
 import { STATUSES } from '@/lib/ps/crm';
 import { getSetting } from '@/lib/settings';
 import Shell from './Shell';
@@ -10,7 +11,7 @@ const ago = (iso: string) => { const m = Math.max(1, Math.round((Date.now() - ne
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((x) => x[0]?.toUpperCase() ?? '').join('') || '?';
 
 export default async function AdminHome() {
-  const d = await dashboard();
+  const [d, vis] = await Promise.all([dashboard(), visitorStats(7)]);
   const maxBar = Math.max(1, ...d.series.map((s) => s.scan + s.solution));
   const trend = d.weekPrev ? Math.round(((d.week - d.weekPrev) / d.weekPrev) * 100) : null;
   const maxStage = Math.max(1, ...Object.values(d.byStatus));
@@ -82,6 +83,15 @@ export default async function AdminHome() {
         </div>
 
         <div style={{ display: 'grid', gap: 20, alignContent: 'start' }}>
+          <div className="adm-card">
+            <div className="adm-card-h"><h2>Visitors</h2><Link href="/qwedsa/visitors" className="adm-sub">Open →</Link></div>
+            <div className="adm-health">
+              <div><span>Today</span><b>{vis.hasUnique ? vis.today.visitors : vis.today.views}</b></div>
+              <div><span>Yesterday</span><b>{vis.hasUnique ? vis.yesterdayVisitors : '-'}</b></div>
+              <div><span>Last 7 days</span><b>{vis.hasUnique ? vis.range.visitors : vis.range.views}</b></div>
+              <div><span>Became a lead</span><b>{vis.range.conversion}%</b></div>
+            </div>
+          </div>
           <div className="adm-card">
             <div className="adm-card-h"><h2><BellRing size={16} aria-hidden style={{ verticalAlign: '-3px' }} /> Alert channels</h2></div>
             <div className="adm-health">

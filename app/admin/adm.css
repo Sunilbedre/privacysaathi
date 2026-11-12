@@ -234,3 +234,13 @@
 .adm-table input[type=checkbox]{width:17px;height:17px;accent-color:var(--a);cursor:pointer}
 .adm-d-top form,.adm-testrow form{display:inline}
 @media (max-width:520px){.adm-two-f{grid-template-columns:1fr}}
+
+/* Visitors page */
+.adm-bar-row{display:grid;grid-template-columns:120px minmax(0,1fr) 40px;align-items:center;gap:10px;font-size:.88rem}
+.adm-bar-row span{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-bar-row div{height:10px;border-radius:999px;background:var(--soft2);overflow:hidden}
+.adm-bar-row b{display:block;height:100%;border-radius:999px;background:var(--a)}
+.adm-bar-row em{font-style:normal;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.adm-bars.dense{gap:2px}.adm-bars.dense em{font-size:.6rem}
+.adm-bars div[title]:hover i{filter:brightness(1.15)}
+.adm-rows{display:grid;gap:12px}

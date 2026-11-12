@@ -1,13 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { LayoutDashboard, Inbox, ScanSearch, Settings, LogOut, ExternalLink } from 'lucide-react';
+import { LayoutDashboard, Inbox, ScanSearch, Settings, LogOut, ExternalLink, Users } from 'lucide-react';
 import { cmsEnabled, isCmsAuthed } from '@/lib/cms/auth';
 import { logoutAction } from './actions';
 import ThemeToggle from '@/components/ps/ThemeToggle';
 
-export type AdminTab = 'dashboard' | 'crm' | 'scans' | 'settings';
+export type AdminTab = 'dashboard' | 'visitors' | 'crm' | 'scans' | 'settings';
 const NAV: { id: AdminTab; href: string; label: string; Icon: typeof Inbox }[] = [
   { id: 'dashboard', href: '/qwedsa', label: 'Dashboard', Icon: LayoutDashboard },
+  { id: 'visitors', href: '/qwedsa/visitors', label: 'Visitors', Icon: Users },
   { id: 'crm', href: '/qwedsa/crm', label: 'Enquiries', Icon: Inbox },
   { id: 'scans', href: '/qwedsa/scans', label: 'Scans', Icon: ScanSearch },
   { id: 'settings', href: '/qwedsa/settings', label: 'Settings', Icon: Settings },

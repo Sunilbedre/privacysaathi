@@ -14,6 +14,8 @@ export default function Privacy() {
         <p>To run the scan, build your report, contact you about it, and keep the service safe. We contact you only because you asked and agreed.</p>
         <h2>How long</h2>
         <p>Scan results and reports are deleted after 90 days. Contact records are kept while we are in touch with you, or until you ask us to delete them.</p>
+        <h2>Visit counts</h2>
+        <p>To see how many people use the website, we count visits without knowing who you are. Your browser keeps a random code that our server turns into a one-day code, so a visit is counted once a day and cannot be followed from one day to the next. We store the page opened, the time, the device type (phone, tablet or desktop), the campaign tags in the link you used and the website that sent you. We do not store your name, your IP address or the raw code, and we ignore automated crawlers.</p>
         <h2>Your choices</h2>
         <p>Email <a href="mailto:privacy@bedreweb.com" style={{ textDecoration: 'underline' }}>privacy@bedreweb.com</a> to see, correct or delete your data. Analytics runs only if you accept cookies.</p>
       </div>

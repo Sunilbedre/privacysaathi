@@ -18,11 +18,15 @@ export function captureTags(): Record<string, string> {
     return t;
   } catch { return { landing_host: location.host }; }
 }
+/** A random id kept in this browser only. The server turns it into a one-day hash, so visits can be counted without knowing who anyone is. */
+function vid(): string {
+  try { let v = localStorage.getItem('ps-vid'); if (!v) { v = (crypto.randomUUID?.() ?? Math.random().toString(36).slice(2) + Date.now().toString(36)).slice(0, 36); localStorage.setItem('ps-vid', v); } return v; } catch { return ''; }
+}
 export function track(event: string, extra: Record<string, unknown> = {}) {
   try {
     const w = window as unknown as { gtag?: (...a: unknown[]) => void };
     w.gtag?.('event', event, extra); // only exists after cookie consent
-    void fetch('/api/ps/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ event, tags: captureTags(), ...extra }), keepalive: true });
+    void fetch('/api/ps/event', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ event, tags: captureTags(), vid: vid(), ...extra }), keepalive: true });
   } catch { /* ignore */ }
 }
 export default function PsTrack() {
